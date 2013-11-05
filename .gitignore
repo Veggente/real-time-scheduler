@@ -164,3 +164,4 @@ xcuserdata
 # Customized ignored files
 real-time-scheduler/real_time_scheduler.1
 xcuserdata
+real-time-scheduler.xcodeproj/

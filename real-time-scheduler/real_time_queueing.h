@@ -9,6 +9,7 @@
 #define REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_
 
 #include <vector>
+#include <random>
 #include "./policy.h"
 
 class Packet;
@@ -16,6 +17,7 @@ typedef std::vector<Packet> PacketSet;
 typedef std::vector<PacketSet> Traffic;
 typedef std::vector<PacketSet> Queues;
 typedef std::vector<int> Counters;
+typedef std::vector<double> Ratios;
 
 class Packet {  // packet with birth time and deadline
 public:  // NOLINT
@@ -30,16 +32,20 @@ private:  // NOLINT
 
 class QueueingSystem {
 public:  // NOLINT
-    QueueingSystem(int i, Policy s);
+    QueueingSystem(int i, Policy s, Ratios q);
     Queues per_link_queue() const {return per_link_queue_;}
     Counters per_link_deficit() const {return per_link_deficit_;}
     int network_size() const {return network_size_;}
     Policy scheduler() const {return scheduler_;}
+    Ratios qos() const {return qos_;}
+    void arrive(const Traffic &traffic, std::mt19937 &rng);
+        // TODO(Veggente): depart
 private:  // NOLINT
     Queues per_link_queue_;
     Counters per_link_deficit_;
     int network_size_;
     Policy scheduler_;
+    Ratios qos_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_

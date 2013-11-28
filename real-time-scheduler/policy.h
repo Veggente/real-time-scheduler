@@ -8,7 +8,7 @@
 #ifndef REAL_TIME_SCHEDULER_POLICY_H_
 #define REAL_TIME_SCHEDULER_POLICY_H_
 
-enum Policy { LDF,  // largest-deficit-first
+enum Policy {   LDF,  // largest-deficit-first
                 EDF,  // earliest-deadline-first
                 SDBF};  // shortest-delay-bound-first
 

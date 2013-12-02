@@ -26,7 +26,7 @@ private:  // NOLINT
 
 class QueueingSystem {
 public:  // NOLINT
-    QueueingSystem(int i, Policy s, Ratios q);
+    QueueingSystem(const BooleanMatrix &m, Policy s, Ratios q, int b);
     Queues per_link_queue() const {return per_link_queue_;}
     Counters per_link_deficit() const {return per_link_deficit_;}
     int network_size() const {return network_size_;}
@@ -36,10 +36,11 @@ public:  // NOLINT
     TieBreaker intra_link_tie_breaker() const {return intra_link_tie_breaker_;}
     BooleanMatrix maximal_schedule_matrix() const {
         return maximal_schedule_matrix_;}
+    int system_clock() const {return system_clock_;}
+    void clock_work() {++system_clock_;}
     void arrive(const Traffic &traffic, std::mt19937 &rng);
     Counters queue_lengths();
-    void depart(std::mt19937 &rng);
-        // TODO(Veggente): depart
+    void depart(std::mt19937 &rng);  // NOLINT
 private:  // NOLINT
     Queues per_link_queue_;
     Counters per_link_deficit_;
@@ -49,6 +50,7 @@ private:  // NOLINT
     int bandwidth_;
     TieBreaker intra_link_tie_breaker_;
     BooleanMatrix maximal_schedule_matrix_;
+    int system_clock_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_

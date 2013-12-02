@@ -24,6 +24,7 @@ enum TieBreaker {   RANDOM,  // uniformly random tie-breaker
 BooleanVector greedy(const BooleanVector &availability,
                      const IntegerVector &priority,
                      const BooleanMatrix &maximal_schedule_matrix,
+                         // must be maximal
                      std::mt19937 &rng);
 
 BooleanVector ldf(const Queues &queues_deadline_heap,

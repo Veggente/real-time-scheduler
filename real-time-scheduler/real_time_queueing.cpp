@@ -14,8 +14,10 @@ Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
 bool cmp_delay_bound(const Packet &a, const Packet &b);
 bool cmp_deadline(const Packet &a, const Packet &b);
 
-QueueingSystem::QueueingSystem(int i, Policy s, Ratios q) {
-    network_size_ = i;
+QueueingSystem::QueueingSystem(const BooleanMatrix &m, Policy s, Ratios q,
+                               int b) {
+    maximal_schedule_matrix_ = m;
+    network_size_ = static_cast<int>(m[0].size());
     per_link_deficit_.insert(per_link_deficit_.begin(), network_size_, 0);
     PacketSet empty_packet_set;
     per_link_queue_.insert(per_link_queue_.begin(), network_size_,
@@ -27,6 +29,8 @@ QueueingSystem::QueueingSystem(int i, Policy s, Ratios q) {
     } else {
         intra_link_tie_breaker_ = DEADLINE;
     }
+    bandwidth_ = b;
+    system_clock_ = 0;
 }
 
 void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
@@ -54,7 +58,7 @@ Counters QueueingSystem::queue_lengths() {
     return queues;
 }
 
-void QueueingSystem::depart(std::mt19937 &rng) {
+void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
     for (int sub_time_slot = 0; sub_time_slot < bandwidth(); ++sub_time_slot) {
         BooleanVector scheduled_links(network_size(), false);
         if (scheduler() == LDF) {

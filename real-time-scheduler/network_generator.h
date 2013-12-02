@@ -9,11 +9,8 @@
 #define REAL_TIME_SCHEDULER_NETWORK_GENERATOR_H_
 
 #include <vector>
-#include <map>
-
-typedef std::vector<bool> BooleanVector;
-typedef std::vector<std::vector<bool>> BooleanMatrix;
-typedef std::map<int, BooleanMatrix> BooleanMatrixMap;
+// #include <map>
+#include "./common.h"
 
 BooleanMatrix gen_max_matrix_collocated(int network_size);
     // generate maximal schedule matrix for collocated networks

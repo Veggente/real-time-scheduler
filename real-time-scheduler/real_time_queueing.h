@@ -8,16 +8,10 @@
 #ifndef REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_
 #define REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_
 
-#include <vector>
 #include <random>
+#include <vector>
 #include "./policy.h"
-
-class Packet;
-typedef std::vector<Packet> PacketSet;
-typedef std::vector<PacketSet> Traffic;
-typedef std::vector<PacketSet> Queues;
-typedef std::vector<int> Counters;
-typedef std::vector<double> Ratios;
+#include "./common.h"
 
 class Packet {  // packet with birth time and deadline
 public:  // NOLINT
@@ -38,7 +32,13 @@ public:  // NOLINT
     int network_size() const {return network_size_;}
     Policy scheduler() const {return scheduler_;}
     Ratios qos() const {return qos_;}
+    int bandwidth() const {return bandwidth_;}
+    TieBreaker intra_link_tie_breaker() const {return intra_link_tie_breaker_;}
+    BooleanMatrix maximal_schedule_matrix() const {
+        return maximal_schedule_matrix_;}
     void arrive(const Traffic &traffic, std::mt19937 &rng);
+    Counters queue_lengths();
+    void depart(std::mt19937 &rng);
         // TODO(Veggente): depart
 private:  // NOLINT
     Queues per_link_queue_;
@@ -46,6 +46,9 @@ private:  // NOLINT
     int network_size_;
     Policy scheduler_;
     Ratios qos_;
+    int bandwidth_;
+    TieBreaker intra_link_tie_breaker_;
+    BooleanMatrix maximal_schedule_matrix_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_

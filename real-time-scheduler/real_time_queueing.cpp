@@ -14,23 +14,25 @@ Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
 bool cmp_delay_bound(const Packet &a, const Packet &b);
 bool cmp_deadline(const Packet &a, const Packet &b);
 
-QueueingSystem::QueueingSystem(const BooleanMatrix &m, Policy s, Ratios q,
-                               int b) {
-    maximal_schedule_matrix_ = m;
-    network_size_ = static_cast<int>(m[0].size());
-    per_link_deficit_.insert(per_link_deficit_.begin(), network_size_, 0);
+QueueingSystem::QueueingSystem(const BooleanMatrix &maximal_schedule_matrix_,
+                               Policy scheduler_, Ratios qos_, int bandwidth_,
+                               int max_delay_bound_)
+: maximal_schedule_matrix_(maximal_schedule_matrix_),
+scheduler_(scheduler_),
+qos_(qos_),
+bandwidth_(bandwidth_),
+system_clock_(0),
+max_delay_bound_(max_delay_bound_) {
+    network_size_ = static_cast<int>(maximal_schedule_matrix_[0].size());
+    per_link_deficit_.insert(per_link_deficit_.begin(), network_size(), 0);
     PacketSet empty_packet_set;
-    per_link_queue_.insert(per_link_queue_.begin(), network_size_,
+    per_link_queue_.insert(per_link_queue_.begin(), network_size(),
                            empty_packet_set);
-    scheduler_ = s;
-    qos_ = q;
     if (scheduler() == SDBF) {  // TODO(Veggente): customizable tie-breakers
         intra_link_tie_breaker_ = DELAY_BOUND;
     } else {
         intra_link_tie_breaker_ = DEADLINE;
     }
-    bandwidth_ = b;
-    system_clock_ = 0;
 }
 
 void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
@@ -39,13 +41,6 @@ void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
     for (int i = 0; i < network_size(); ++i) {
         per_link_queue_[i].insert(per_link_queue_[i].begin(),
                                   traffic[i].begin(), traffic[i].end());
-        if (intra_link_tie_breaker() == DELAY_BOUND) {
-            make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
-                      cmp_delay_bound);
-        } else if (intra_link_tie_breaker() == DEADLINE) {
-            make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
-                      cmp_deadline);
-        }  // for RANDOM no tie-breaker is specified
         per_link_deficit_[i] += deficit_increase[i];
     }
 }
@@ -59,13 +54,30 @@ Counters QueueingSystem::queue_lengths() {
 }
 
 void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
+    for (int i = 0; i < network_size(); ++i) {  // make heaps
+        if (intra_link_tie_breaker() == DELAY_BOUND) {
+            make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
+                      cmp_delay_bound);
+        } else if (intra_link_tie_breaker() == DEADLINE) {
+            make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
+                      cmp_deadline);
+        }  // for RANDOM no tie-breaker is specified, so no heap is made
+    }
     for (int sub_time_slot = 0; sub_time_slot < bandwidth(); ++sub_time_slot) {
         BooleanVector scheduled_links(network_size(), false);
         if (scheduler() == LDF) {
             scheduled_links = ldf(per_link_queue(), per_link_deficit(),
                                   maximal_schedule_matrix(), rng);
+        } else if (scheduler() == EDF) {
+            scheduled_links = edf(per_link_queue(), per_link_deficit(),
+                                  maximal_schedule_matrix(), system_clock(),
+                                  max_delay_bound(), rng);
+        } else if (scheduler() == SDBF) {
+            scheduled_links = sdbf(per_link_queue(), per_link_deficit(),
+                                   maximal_schedule_matrix(), max_delay_bound(),
+                                   rng);
         } else {
-            // TODO(Veggente): other policies
+            // TODO(Veggente): should not happen
         }
         for (int i = 0; i < network_size(); ++i) {
             if (scheduled_links[i]) {
@@ -81,6 +93,18 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                 if (per_link_deficit()[i] > 0) {
                     per_link_deficit_[i] -= 1;  // deficit decreases
                 }
+            }
+        }
+    }
+}
+
+void QueueingSystem::clock_tick() {
+    ++system_clock_;
+    for (int i = 0; i < network_size(); ++i) {
+        for (int j = static_cast<int>(per_link_queue()[i].size())-1; j >= 0;
+             --j) {
+            if (per_link_queue()[i][j].deadline() < system_clock()) {
+                per_link_queue_[i].erase(per_link_queue_[i].begin()+j);
             }
         }
     }

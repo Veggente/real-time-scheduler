@@ -96,7 +96,7 @@ BooleanVector ldf(const Queues &queues_deadline_heap,
 BooleanVector edf(const Queues &queues_deadline_heap,
                   const Counters &deficits,
                   const BooleanMatrix &maximal_schedule_matrix,
-                  int max_deadline, std::mt19937 &rng) {
+                  int current_time, int max_delay_bound, std::mt19937 &rng) {
     IntegerVector priority;
     int network_size = static_cast<int>(queues_deadline_heap.size());
     for (int i = 0; i < network_size; ++i) {
@@ -104,14 +104,21 @@ BooleanVector edf(const Queues &queues_deadline_heap,
             priority.push_back(0);
                 // priority does not matter for unavailable links
         } else {
-            priority.push_back(-queues_deadline_heap[i][0].deadline());
+            int remaining_delay_bound = queues_deadline_heap[i][0].deadline()
+                                        -current_time+1;
+            if (deficits[i] > 0) {
+                priority.push_back(-remaining_delay_bound);
+            } else {  // zero deficit links have lower priority
+                priority.push_back(-remaining_delay_bound-max_delay_bound);
+            }
         }
     }
     return greedy(available_queues(queues_deadline_heap), priority,
                   maximal_schedule_matrix, rng);
 }
 
-BooleanVector sdbf(const Queues &queues_delay_bound_heap,
+BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
+                                                           // heap
                    const Counters &deficits,
                    const BooleanMatrix &maximal_schedule_matrix,
                    int max_delay_bound, std::mt19937 &rng) {
@@ -122,7 +129,13 @@ BooleanVector sdbf(const Queues &queues_delay_bound_heap,
             priority.push_back(0);
             // priority does not matter for unavailable links
         } else {
-            priority.push_back(-queues_delay_bound_heap[i][0].delay_bound());
+            if (deficits[i] > 0) {
+                priority.push_back(-queues_delay_bound_heap[i][0].delay_bound()
+                                   );
+            } else {  // zero deficit links have lower priority
+                priority.push_back(-queues_delay_bound_heap[i][0].delay_bound()
+                                   -max_delay_bound);
+            }
         }
     }
     return greedy(available_queues(queues_delay_bound_heap), priority,

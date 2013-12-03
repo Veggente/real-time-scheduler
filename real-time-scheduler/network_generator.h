@@ -9,7 +9,6 @@
 #define REAL_TIME_SCHEDULER_NETWORK_GENERATOR_H_
 
 #include <vector>
-// #include <map>
 #include "./common.h"
 
 BooleanMatrix gen_max_matrix_collocated(int network_size);

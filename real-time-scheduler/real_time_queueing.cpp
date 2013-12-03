@@ -14,15 +14,15 @@ Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
 bool cmp_delay_bound(const Packet &a, const Packet &b);
 bool cmp_deadline(const Packet &a, const Packet &b);
 
-QueueingSystem::QueueingSystem(const BooleanMatrix &maximal_schedule_matrix_,
-                               Policy scheduler_, Ratios qos_, int bandwidth_,
-                               int max_delay_bound_)
-: maximal_schedule_matrix_(maximal_schedule_matrix_),
-scheduler_(scheduler_),
-qos_(qos_),
-bandwidth_(bandwidth_),
-system_clock_(0),
-max_delay_bound_(max_delay_bound_) {
+QueueingSystem::QueueingSystem(const BooleanMatrix &m,
+                               Policy s, Ratios q, int b,
+                               int d) {
+    maximal_schedule_matrix_ = m;
+    scheduler_ = s;
+    qos_ = q;
+    bandwidth_ = b;
+    system_clock_ = 0;
+    max_delay_bound_ = d;
     network_size_ = static_cast<int>(maximal_schedule_matrix_[0].size());
     per_link_deficit_.insert(per_link_deficit_.begin(), network_size(), 0);
     PacketSet empty_packet_set;

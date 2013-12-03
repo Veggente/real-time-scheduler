@@ -8,6 +8,6 @@
 #ifndef REAL_TIME_SCHEDULER_SIMULATOR_H_
 #define REAL_TIME_SCHEDULER_SIMULATOR_H_
 
-int scheduler(int network_size, int num_iterations);
+int simulator(int network_size, int num_iterations);
 
 #endif  // REAL_TIME_SCHEDULER_SIMULATOR_H_

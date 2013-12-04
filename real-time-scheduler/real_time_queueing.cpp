@@ -134,7 +134,7 @@ Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
         std::binomial_distribution<> d(static_cast<int>(traffic[i].size()),
                                        qos[i]);
             // TODO(Veggente): share the distributions to reduce object
-            // generation
+            // generation time
         deficit_increase[i] = d(rng);
     }
     return deficit_increase;

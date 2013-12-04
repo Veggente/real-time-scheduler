@@ -52,4 +52,6 @@ typedef std::pair<int, int> IndexPair;  // (priority, index) pair
 typedef std::vector<IndexPair> IndexMapping;
     // (priority, index) mapping
 
+const int HUNDRED = 100;
+
 #endif  // REAL_TIME_SCHEDULER_COMMON_H_

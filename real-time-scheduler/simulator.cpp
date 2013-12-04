@@ -17,6 +17,7 @@
 #include "/usr/local/include/prettyprint.hpp"
 
 std::string policy_to_string(int p);
+void progress_bar(int time_slot, int num_iterations);
 
 int simulator(const std::string &input_file) {
     // Open input file
@@ -47,6 +48,7 @@ int simulator(const std::string &input_file) {
     int num_iterations;
 
     // Read variables from input file
+    // TODO(Veggente): format compatibility check
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     in >> network_type_string;
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
@@ -109,7 +111,7 @@ int simulator(const std::string &input_file) {
     in >> num_iterations;
     in.close();
 
-    // Initialize systems
+    // Initialize systems and names
     std::mt19937 rng;
     std::vector<std::vector<QueueingSystem>> queueing_systems;
     std::vector<std::vector<std::string>> queueing_system_names;
@@ -123,19 +125,20 @@ int simulator(const std::string &input_file) {
                                        bandwidths[j], max_delay_bound);
             temp_system_vector.push_back(temp_system);
             std::string temp_name = network_type_string.substr(0, 2)
-                // TODO(Veggente): magic #
+                // TODO(Veggente): magic # 2
                 +std::to_string(network_size);
             if ( (network_type == LINE) || (network_type == CYCLE) ) {
                 temp_name.append("-i"+std::to_string(interference_radius));
             }
             temp_name.append("-du"+std::to_string(max_delay_bound)+"-dl"
                              +std::to_string(min_delay_bound)+"-it"
-                             +std::to_string(num_iterations)+policy_to_string(i)
-                             +"-b"+std::to_string(bandwidths[j])+".txt");
+                             +std::to_string(num_iterations)+"-"
+                             +policy_to_string(i)+"-b"
+                             +std::to_string(bandwidths[j])+".txt");
             temp_name_vector.push_back(temp_name);
 
             // Output network configuration to file
-            std::ofstream out(temp_name, std::ofstream::app);
+            std::ofstream out(temp_name, std::ofstream::trunc);
             if (!out) {
                 std::cerr << "Error: Could not open file " << temp_name << "!"
                 << std::endl;
@@ -179,7 +182,7 @@ int simulator(const std::string &input_file) {
                                                min_delay_bound, max_delay_bound,
                                                rng);
         } else {
-            // should not happen
+            // TODO(Veggente): should not happen
         }
         for (int i = 0; i < POLICY_COUNT; ++i) {
             for (int j = 0; j < bandwidth_count; ++j) {
@@ -190,6 +193,7 @@ int simulator(const std::string &input_file) {
                 queueing_systems[i][j].clock_tick();
             }
         }
+        progress_bar(time_slot, num_iterations);
     }
     return 0;
 }
@@ -206,5 +210,13 @@ std::string policy_to_string(int p) {
         default:
             return "";
             break;
+    }
+}
+
+void progress_bar(int time_slot, int num_iterations) {
+    if (time_slot == num_iterations-1) {
+        std::cout << "\rDone!           " << std::endl;;
+    } else if (time_slot*HUNDRED/num_iterations != (time_slot-1)*HUNDRED/num_iterations) {
+        std::cout << "\r" << time_slot*HUNDRED/num_iterations << "% completed" << std::flush;
     }
 }

@@ -16,7 +16,8 @@
 enum Policy {
     LDF,  // largest-deficit-first
     EDF,  // earliest-deadline-first
-    SDBF  // shortest-delay-bound-first
+    SDBF,  // shortest-delay-bound-first
+    POLICY_COUNT
 };
 
 enum TieBreaker {

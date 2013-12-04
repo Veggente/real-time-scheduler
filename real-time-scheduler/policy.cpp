@@ -130,8 +130,8 @@ BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
             // priority does not matter for unavailable links
         } else {
             if (deficits[i] > 0) {
-                priority.push_back(-queues_delay_bound_heap[i][0].delay_bound()
-                                   );
+                priority.push_back(
+                    -queues_delay_bound_heap[i][0].delay_bound());
             } else {  // zero deficit links have lower priority
                 priority.push_back(-queues_delay_bound_heap[i][0].delay_bound()
                                    -max_delay_bound);

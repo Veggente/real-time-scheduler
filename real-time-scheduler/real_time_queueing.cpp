@@ -8,7 +8,8 @@
 #include "./real_time_queueing.h"
 #include <iostream>  // NOLINT
 #include <algorithm>
-#include <fstream>
+#include <fstream>  // NOLINT
+#include <string>
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
                          std::mt19937 &rng);

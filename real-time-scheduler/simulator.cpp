@@ -6,152 +6,160 @@
 //
 
 #include "./simulator.h"
-#include <iostream>
 #include <random>
-#include <fstream>
+#include <iostream>  // NOLINT
+#include <fstream>  // NOLINT
+#include <string>
+#include <vector>
 #include "./network_generator.h"
 #include "./traffic_generator.h"
 #include "./real_time_queueing.h"
 #include "/usr/local/include/prettyprint.hpp"
 
-std::string arrival_dist_string(ArrivalDistribution arr_dist, int max_packet,
-                                double dist_param);
+std::string policy_to_string(int p);
 
-int simulator(int network_size, int num_iterations) {  // obsolete
-    int interference_radius = 1;
-    BooleanMatrix maximal_schedule_matrix =
-        gen_max_matrix_line(network_size, interference_radius);
-    // int min_packet = 0;
-    int max_packet = 2;
-    int min_delay_bound = 2;
-    int max_delay_bound = 4;
-    double binom_param = 0.5;
-    Ratios qos(network_size, 0.53);
-    int bandwidth = 1;
-    std::string ldf_deficit_filename = "ldf.txt";
-    std::mt19937 rng;
-    QueueingSystem system_ldf(maximal_schedule_matrix, LDF, qos, bandwidth,
-                              max_delay_bound);
-    for (int time_slot = 0; time_slot < num_iterations; ++time_slot) {
-//        Traffic traffic = generate_uniform_traffic(network_size, time_slot,
-//                                                   min_packet, max_packet,
-//                                                   min_delay_bound,
-//                                                   max_delay_bound, rng);
-        Traffic traffic = generate_binomial_traffic(network_size, time_slot,
-                                                    max_packet, binom_param,
-                                                    min_delay_bound,
-                                                    max_delay_bound, rng);
-        system_ldf.arrive(traffic, rng);
-        system_ldf.depart(rng);
-        system_ldf.output_deficits(ldf_deficit_filename);
-        system_ldf.clock_tick();
+int simulator(const std::string &input_file) {
+    // Open input file
+    std::ifstream in(input_file);
+    if (!in) {
+        std::cerr << "Error: Cannot open file " << input_file << "!"
+            << std::endl;
+        exit(1);
     }
-    return 0;
-}
 
-int simulator_collocated(int network_size, ArrivalDistribution arr_dist,
-                         int max_packet, double dist_param, int min_delay_bound,
-                         int max_delay_bound, const IntegerVector &bandwidths,
-                         const Ratios &qos, int num_iterations) {
-    BooleanMatrix maximal_schedule_matrix =
-        gen_max_matrix_collocated(network_size);
-    int min_packet = 0;
-    std::mt19937 rng;
-    std::vector<QueueingSystem> system_ldf;
-    std::vector<QueueingSystem> system_edf;
-    std::vector<QueueingSystem> system_sdbf;
-    std::vector<std::string> filename_ldf;
-    std::vector<std::string> filename_edf;
-    std::vector<std::string> filename_sdbf;
-    for (int i = 0; i < bandwidths.size() ; ++i) {
-        QueueingSystem subsystem_ldf(maximal_schedule_matrix, LDF, qos,
-                                     bandwidths[i], max_delay_bound);
-        QueueingSystem subsystem_edf(maximal_schedule_matrix, EDF, qos,
-                                     bandwidths[i], max_delay_bound);
-        QueueingSystem subsystem_sdbf(maximal_schedule_matrix, SDBF, qos,
-                                      bandwidths[i], max_delay_bound);
-        system_ldf.push_back(subsystem_ldf);
-        system_edf.push_back(subsystem_edf);
-        system_sdbf.push_back(subsystem_sdbf);
-        filename_ldf.push_back("n"+std::to_string(network_size)+"-co-ldf-d"
-                               +std::to_string(max_delay_bound)+"-b"
-                               +std::to_string(bandwidths[i])+".txt");
-        filename_edf.push_back("n"+std::to_string(network_size)+"-co-edf-d"
-                               +std::to_string(max_delay_bound)+"-b"
-                               +std::to_string(bandwidths[i])+".txt");
-        filename_sdbf.push_back("n"+std::to_string(network_size)+"-co-sdbf-d"
-                                +std::to_string(max_delay_bound)+"-b"
-                                +std::to_string(bandwidths[i])+".txt");
-        // TODO(Veggente): encapsulation of the following output
-        std::ofstream out(filename_ldf[i], std::ofstream::app);
-        if (!out) {
-            std::cerr << "Error: Could not open file " << filename_ldf[i] << "!"
-            << std::endl;
-            exit(1);
-        }
-        out << "==============Network Configuration==============" << std::endl;
-        out << "Network type: collocated" << std::endl;
-        out << "Network size: " << network_size << std::endl;
-        out << "Policy: LDF" << std::endl;
-        out << "Maximum delay bound: " << max_delay_bound << std::endl;
-        out << "Bandwidth: " << bandwidths[i] << std::endl;
-        out << "Arrival distribution: "
-            +arrival_dist_string(arr_dist, max_packet, dist_param)
-            << std::endl;
-        out << "Delay bound distribution: uniform(" << min_delay_bound << ", "
-            << max_delay_bound << ")" << std::endl;
-        out << "QoS: " << qos << std::endl;
-        out << "====================Deficits=====================" << std::endl;
-        out.close();
-        out.open(filename_edf[i]);
-        if (!out) {
-            std::cerr << "Error: Could not open file " << filename_edf[i] << "!"
-            << std::endl;
-            exit(1);
-        }
-        out << "==============Network Configuration==============" << std::endl;
-        out << "Network type: collocated" << std::endl;
-        out << "Network size: " << network_size << std::endl;
-        out << "Policy: EDF" << std::endl;
-        out << "Maximum delay bound: " << max_delay_bound << std::endl;
-        out << "Bandwidth: " << bandwidths[i] << std::endl;
-        out << "Arrival distribution: "
-            +arrival_dist_string(arr_dist, max_packet, dist_param)
-            << std::endl;
-        out << "Delay bound distribution: uniform(" << min_delay_bound << ", "
-            << max_delay_bound << ")" << std::endl;
-        out << "QoS: " << qos << std::endl;
-        out << "====================Deficits=====================" << std::endl;
-        out.close();
-        out.open(filename_sdbf[i]);
-        if (!out) {
-            std::cerr << "Error: Could not open file " << filename_sdbf[i]
-                << "!" << std::endl;
-            exit(1);
-        }
-        out << "==============Network Configuration==============" << std::endl;
-        out << "Network type: collocated" << std::endl;
-        out << "Network size: " << network_size << std::endl;
-        out << "Policy: SDBF" << std::endl;
-        out << "Maximum delay bound: " << max_delay_bound << std::endl;
-        out << "Bandwidth: " << bandwidths[i] << std::endl;
-        out << "Arrival distribution: "
-            +arrival_dist_string(arr_dist, max_packet, dist_param)
-            << std::endl;
-        out << "Delay bound distribution: uniform(" << min_delay_bound << ", "
-            << max_delay_bound << ")" << std::endl;
-        out << "QoS: " << qos << std::endl;
-        out << "====================Deficits=====================" << std::endl;
-        out.close();
+    // Variable declarations
+    std::string network_type_string;
+    NetworkType network_type;
+    int network_size;
+    int interference_radius;
+    BooleanMatrix maximal_schedule_matrix;
+    std::string arrival_dist_string;
+    ArrivalDistribution arrival_dist;
+    int min_packet = 0;  // allow zero arrival
+    int max_packet;
+    double binom_param;
+    std::string arrival_descriptor;
+    int min_delay_bound;
+    int max_delay_bound;
+    int bandwidth_count;
+    IntegerVector bandwidths;
+    Ratios qos;
+    int num_iterations;
+
+    // Read variables from input file
+    in >> network_type_string >> network_size;
+    if (network_type_string == "collocated") {
+        network_type = COLLOCATED;
+        maximal_schedule_matrix = gen_max_matrix_collocated(network_size);
+    } else if (network_type_string == "line") {
+        in >> interference_radius;
+        network_type = LINE;
+        maximal_schedule_matrix = gen_max_matrix_line(network_size,
+                                                      interference_radius);
+    } else if (network_type_string == "cycle") {
+        in >> interference_radius;
+        network_type = CYCLE;
+        maximal_schedule_matrix = gen_max_matrix_cycle(network_size,
+                                                       interference_radius);
+    } else {
+        std::cerr << "Error: Network type " << network_type_string
+            << " not recognized!" << std::endl;
+        exit(1);
     }
+    in >> arrival_dist_string >> max_packet;
+    if (arrival_dist_string == "uniform") {
+        arrival_dist = UNIFORM_PACKET;
+        arrival_descriptor = "uniform("+std::to_string(min_packet)+", "
+            +std::to_string(max_packet)+")";
+    } else if (arrival_dist_string == "binomial") {
+        arrival_dist = BINOMIAL_PACKET;
+        in >> binom_param;
+        arrival_descriptor = "binomial("+std::to_string(max_packet)+", "
+            +std::to_string(binom_param)+")";
+    } else {
+        std::cerr << "Error: Arrival distribution " << arrival_dist_string
+            << " not recognized!" << std::endl;
+        exit(1);
+    }
+    in >> min_delay_bound >> max_delay_bound >> bandwidth_count;
+    for (int i = 0; i < bandwidth_count; ++i) {
+        int temp;
+        in >> temp;
+        bandwidths.push_back(temp);
+    }
+    for (int i = 0; i < network_size; ++i) {
+        double temp;
+        in >> temp;
+        qos.push_back(temp);
+    }
+    in >> num_iterations;
+    in.close();
+
+    // Initialize systems
+    std::mt19937 rng;
+    std::vector<std::vector<QueueingSystem>> queueing_systems;
+    std::vector<std::vector<std::string>> queueing_system_names;
+        // per-policy, per-bandwidth systems
+    for (int i = 0; i < POLICY_COUNT; ++i) {
+        std::vector<QueueingSystem> temp_system_vector;
+        std::vector<std::string> temp_name_vector;
+        for (int j = 0; j < bandwidth_count; ++j) {
+            QueueingSystem temp_system(maximal_schedule_matrix,
+                                       static_cast<Policy>(i) , qos,
+                                       bandwidths[j], max_delay_bound);
+            temp_system_vector.push_back(temp_system);
+            std::string temp_name = network_type_string.substr(0, 2)
+                // TODO(Veggente): magic #
+                +std::to_string(network_size);
+            if ( (network_type == LINE) || (network_type == CYCLE) ) {
+                temp_name.append("-i"+std::to_string(interference_radius));
+            }
+            temp_name.append("-du"+std::to_string(max_delay_bound)+"-dl"
+                             +std::to_string(min_delay_bound)+"-it"
+                             +std::to_string(num_iterations)+policy_to_string(i)
+                             +"-b"+std::to_string(bandwidths[j])+".txt");
+            temp_name_vector.push_back(temp_name);
+
+            // Output network configuration to file
+            std::ofstream out(temp_name, std::ofstream::app);
+            if (!out) {
+                std::cerr << "Error: Could not open file " << temp_name << "!"
+                << std::endl;
+                exit(1);
+            }
+            out << "============Network Configuration============" << std::endl;
+            out << "Network type: " << network_type_string << std::endl;
+            out << "Network size: " << network_size << std::endl;
+            if ( (network_type == LINE) || (network_type == CYCLE) ) {
+                out << "Interference radius: " << interference_radius
+                    << std::endl;
+            }
+            out << "Policy: " << policy_to_string(i) << std::endl;
+            out << "Max delay bound: " << max_delay_bound << std::endl;
+            out << "Min delay bound: " << min_delay_bound << std::endl;
+            out << "Bandwidth: " << bandwidths[j] << std::endl;
+            out << "Arrival distribution: " << arrival_descriptor << std::endl;
+            out << "Delay bound distribution: uniform(" << min_delay_bound
+                << ", " << max_delay_bound << ")" << std::endl;
+            out << "QoS: " << qos << std::endl;
+            out << "Number of iterations: " << num_iterations << std::endl;
+            out << std::endl;
+            out << "==================Deficits===================" << std::endl;
+            out.close();
+        }
+        queueing_systems.push_back(temp_system_vector);
+        queueing_system_names.push_back(temp_name_vector);
+    }
+
+    // Network evolution
     for (int time_slot = 0; time_slot < num_iterations; ++time_slot) {
         Traffic traffic;
-        if (arr_dist == BINOMIAL_PACKET) {
+        if (arrival_dist == BINOMIAL_PACKET) {
             traffic = generate_binomial_traffic(network_size, time_slot,
-                                                max_packet, dist_param,
+                                                max_packet, binom_param,
                                                 min_delay_bound,
                                                 max_delay_bound, rng);
-        } else if (arr_dist == UNIFORM_PACKET) {
+        } else if (arrival_dist == UNIFORM_PACKET) {
             traffic = generate_uniform_traffic(network_size, time_slot,
                                                min_packet, max_packet,
                                                min_delay_bound, max_delay_bound,
@@ -159,41 +167,30 @@ int simulator_collocated(int network_size, ArrivalDistribution arr_dist,
         } else {
             // should not happen
         }
-        for (int i = 0; i < bandwidths.size(); ++i) {
-            system_ldf[i].arrive(traffic, rng);
-            system_edf[i].arrive(traffic, rng);
-            system_sdbf[i].arrive(traffic, rng);
-            system_ldf[i].depart(rng);
-            system_edf[i].depart(rng);
-            system_sdbf[i].depart(rng);
-            system_ldf[i].output_deficits(filename_ldf[i]);
-            system_edf[i].output_deficits(filename_edf[i]);
-            system_sdbf[i].output_deficits(filename_sdbf[i]);
-            system_ldf[i].clock_tick();
-            system_edf[i].clock_tick();
-            system_sdbf[i].clock_tick();
+        for (int i = 0; i < POLICY_COUNT; ++i) {
+            for (int j = 0; j < bandwidth_count; ++j) {
+                queueing_systems[i][j].arrive(traffic, rng);
+                queueing_systems[i][j].depart(rng);
+                queueing_systems[i][j].output_deficits(
+                    queueing_system_names[i][j]);
+                queueing_systems[i][j].clock_tick();
+            }
         }
     }
     return 0;
 }
 
-ArrivalDistribution string_to_arr_dist(std::string s) {
-    if (s == "uniform") {
-        return UNIFORM_PACKET;
-    } else if (s == "binomial") {
-        return BINOMIAL_PACKET;
-    } else {
-        std::cerr << "Arrival distribution not recognized! Please use uniform or binomial!" << std::endl;
-        exit(1);
-    }
-}
+std::string policy_to_string(int p) {
+    switch (p) {
+        case LDF:
+            return "ldf";
+        case EDF:
+            return "edf";
+        case SDBF:
+            return "sdbf";
 
-std::string arrival_dist_string(ArrivalDistribution arr_dist, int max_packet,
-                                double dist_param) {
-    if (arr_dist == UNIFORM_PACKET) {
-        return "uniform(0, "+std::to_string(max_packet)+")";
-    } else {  // TODO(Veggente): extensibility
-        return "binomial("+std::to_string(max_packet)+", "
-            +std::to_string(dist_param)+")";
+        default:
+            return "";
+            break;
     }
 }

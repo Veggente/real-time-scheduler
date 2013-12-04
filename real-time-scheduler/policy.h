@@ -11,16 +11,6 @@
 #include <random>
 #include "./common.h"
 
-enum Policy {   LDF,  // largest-deficit-first
-                EDF,  // earliest-deadline-first
-                SDBF  // shortest-delay-bound-first
-};
-
-enum TieBreaker {   RANDOM,  // uniformly random tie-breaker
-                    DEADLINE,  // earliest-deadline-first tie-breaker
-                    DELAY_BOUND  // shortest-delay-bound-first tie-breaker
-};
-
 BooleanVector greedy(const BooleanVector &availability,
                      const IntegerVector &priority,
                      const BooleanMatrix &maximal_schedule_matrix,

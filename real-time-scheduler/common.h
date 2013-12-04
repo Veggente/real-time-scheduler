@@ -11,6 +11,30 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <string>
+
+enum Policy {
+    LDF,  // largest-deficit-first
+    EDF,  // earliest-deadline-first
+    SDBF  // shortest-delay-bound-first
+};
+
+enum TieBreaker {
+    RANDOM,  // uniformly random tie-breaker
+    DEADLINE,  // earliest-deadline-first tie-breaker
+    DELAY_BOUND  // shortest-delay-bound-first tie-breaker
+};
+
+enum NetworkType {
+    COLLOCATED,
+    LINE,
+    CYCLE
+};
+
+enum ArrivalDistribution {
+    UNIFORM_PACKET,
+    BINOMIAL_PACKET
+};
 
 class Packet;
 typedef std::vector<Packet> PacketSet;

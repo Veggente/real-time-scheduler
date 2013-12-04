@@ -8,6 +8,7 @@
 #include "./real_time_queueing.h"
 #include <iostream>  // NOLINT
 #include <algorithm>
+#include <fstream>
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
                          std::mt19937 &rng);
@@ -108,6 +109,20 @@ void QueueingSystem::clock_tick() {
             }
         }
     }
+}
+
+void QueueingSystem::output_deficits(const std::string &filename) {
+    std::ofstream out(filename, std::ofstream::app);
+    if (!out) {
+        std::cerr << "Error: Could not open file " << filename << "!"
+            << std::endl;
+        exit(1);
+    }
+    for (int i = 0; i < network_size()-1; ++i) {
+        out << per_link_deficit()[i] << " ";
+    }
+    out << per_link_deficit().back() << std::endl;
+    out.close();
 }
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,

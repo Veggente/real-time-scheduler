@@ -10,6 +10,7 @@
 
 #include <random>
 #include <vector>
+#include <string>
 #include "./policy.h"
 #include "./common.h"
 
@@ -45,6 +46,7 @@ public:  // NOLINT
     void arrive(const Traffic &traffic, std::mt19937 &rng);
     Counters queue_lengths();
     void depart(std::mt19937 &rng);  // NOLINT
+    void output_deficits(const std::string &filename);
 private:  // NOLINT
     Queues per_link_queue_;
     Counters per_link_deficit_;

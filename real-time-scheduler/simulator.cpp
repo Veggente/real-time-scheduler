@@ -47,7 +47,10 @@ int simulator(const std::string &input_file) {
     int num_iterations;
 
     // Read variables from input file
-    in >> network_type_string >> network_size;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> network_type_string;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> network_size;
     if (network_type_string == "collocated") {
         network_type = COLLOCATED;
         maximal_schedule_matrix = gen_max_matrix_collocated(network_size);
@@ -66,7 +69,10 @@ int simulator(const std::string &input_file) {
             << " not recognized!" << std::endl;
         exit(1);
     }
-    in >> arrival_dist_string >> max_packet;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> arrival_dist_string;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> max_packet;
     if (arrival_dist_string == "uniform") {
         arrival_dist = UNIFORM_PACKET;
         arrival_descriptor = "uniform("+std::to_string(min_packet)+", "
@@ -81,17 +87,25 @@ int simulator(const std::string &input_file) {
             << " not recognized!" << std::endl;
         exit(1);
     }
-    in >> min_delay_bound >> max_delay_bound >> bandwidth_count;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> min_delay_bound;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> max_delay_bound;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> bandwidth_count;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     for (int i = 0; i < bandwidth_count; ++i) {
         int temp;
         in >> temp;
         bandwidths.push_back(temp);
     }
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     for (int i = 0; i < network_size; ++i) {
         double temp;
         in >> temp;
         qos.push_back(temp);
     }
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     in >> num_iterations;
     in.close();
 

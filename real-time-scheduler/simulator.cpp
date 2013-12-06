@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "./network_generator.h"
 #include "./traffic_generator.h"
 #include "./real_time_queueing.h"
@@ -113,6 +114,11 @@ int simulator(const std::string &input_file) {
         in >> temp;
         qos.push_back(temp);
     }
+    double max_qos = *std::max_element(qos.begin(), qos.end());
+    for (int i = 0; i < network_size; ++i) {
+        qos[i] = qos[i] / max_qos;
+            // normalization since qos cannot be greater than 1
+    }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     in >> ratio_count;
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
@@ -151,12 +157,6 @@ int simulator(const std::string &input_file) {
                 if ( (network_type == LINE) || (network_type == CYCLE) ) {
                     temp_name.append("-i"+std::to_string(interference_radius));
                 }
-//                temp_name.append("-du"+std::to_string(max_delay_bound)+"-dl"
-//                                 +std::to_string(min_delay_bound)+"-it"
-//                                 +std::to_string(num_iterations)+"-"
-//                                 +policy_to_string(i)+"-b"
-//                                 +std::to_string(bandwidths[j])+"-r"
-//                                 +std::to_string(ratios[ratio_it])+".txt");
                 std::ostringstream ostr;
                 ostr << ratios[ratio_it];
                 temp_name.append("-du"+std::to_string(max_delay_bound)+"-dl"

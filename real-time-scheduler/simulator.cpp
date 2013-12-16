@@ -22,14 +22,13 @@
 
 std::string policy_to_string(int p);
 void progress_bar(int time_slot, int num_iterations);
+void cannot_open_file(const std::string &filename);
 
 int simulator(const std::string &input_file) {
     // Open input file
     std::ifstream in(input_file);
     if (!in) {
-        std::cerr << "Error: Cannot open file " << input_file << "!"
-            << std::endl;
-        exit(1);
+        cannot_open_file(input_file);
     }
 
     // Variable declarations
@@ -263,4 +262,10 @@ void progress_bar(int time_slot, int num_iterations) {
         std::cout << "\r" << time_slot*HUNDRED/num_iterations << "% completed"
             << std::flush;
     }
+}
+
+void cannot_open_file(const std::string &filename) {
+    std::cerr << "Error: Cannot open file " << filename << "!"
+        << std::endl;
+    exit(1);
 }

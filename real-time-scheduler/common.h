@@ -38,6 +38,7 @@ enum ArrivalDistribution {
 };
 
 class Packet;
+class QueueingSystem;
 typedef std::vector<Packet> PacketSet;
 typedef std::vector<PacketSet> Traffic;
 typedef std::vector<PacketSet> Queues;
@@ -51,6 +52,8 @@ typedef std::map<int, BooleanMatrix> BooleanMatrixMap;
 typedef std::pair<int, int> IndexPair;  // (priority, index) pair
 typedef std::vector<IndexPair> IndexMapping;
     // (priority, index) mapping
+typedef std::vector<std::vector<std::vector<QueueingSystem>>> QueueingSystem3D;
+typedef std::vector<std::vector<std::vector<std::string>>> String3D;
 
 const int HUNDRED = 100;
 

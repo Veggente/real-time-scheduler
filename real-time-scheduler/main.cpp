@@ -10,6 +10,6 @@
 #include "./simulator.h"
 
 int main(int argc, const char * argv[]) {
-    std::string input_file(argv[1]);
+    std::string input_file(argv[1]);  // TODO(Veggente): check arguments
     return simulator(input_file);
 }

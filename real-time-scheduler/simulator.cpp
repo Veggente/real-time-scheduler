@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include "./network_generator.h"
 #include "./traffic_generator.h"
 #include "./real_time_queueing.h"
@@ -139,7 +140,8 @@ int simulator(const std::string &input_file) {
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
         std::vector<std::vector<QueueingSystem>> temp_system_matrix;
         std::vector<std::vector<std::string>> temp_name_matrix;
-        for (int bandwidth_it = 0; bandwidth_it < bandwidth_count; ++bandwidth_it) {
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_count;
+             ++bandwidth_it) {
             std::vector<QueueingSystem> temp_system_vector;
             std::vector<std::string> temp_name_vector;
             for (int ratio_it = 0; ratio_it < ratio_count; ++ratio_it) {
@@ -148,8 +150,9 @@ int simulator(const std::string &input_file) {
                     scaled_qos[k] = scaled_qos[k]*ratios[ratio_it];
                 }
                 QueueingSystem temp_system(maximal_schedule_matrix,
-                                           static_cast<Policy>(policy_it) , scaled_qos,
-                                           bandwidths[bandwidth_it], max_delay_bound);
+                                           static_cast<Policy>(policy_it),
+                                           scaled_qos, bandwidths[bandwidth_it],
+                                           max_delay_bound);
                 temp_system_vector.push_back(temp_system);
                 std::string temp_name = network_type_string.substr(0, 2)
                     // TODO(Veggente): magic # 2
@@ -255,7 +258,9 @@ std::string policy_to_string(int p) {
 void progress_bar(int time_slot, int num_iterations) {
     if (time_slot == num_iterations-1) {
         std::cout << "\rDone!           " << std::endl;;
-    } else if (time_slot*HUNDRED/num_iterations != (time_slot-1)*HUNDRED/num_iterations) {
-        std::cout << "\r" << time_slot*HUNDRED/num_iterations << "% completed" << std::flush;
+    } else if (time_slot*HUNDRED/num_iterations !=
+               (time_slot-1)*HUNDRED/num_iterations) {
+        std::cout << "\r" << time_slot*HUNDRED/num_iterations << "% completed"
+            << std::flush;
     }
 }

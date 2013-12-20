@@ -8,23 +8,23 @@
 #ifndef REAL_TIME_SCHEDULER_SIMULATOR_H_
 #define REAL_TIME_SCHEDULER_SIMULATOR_H_
 
-#include <string>
 #include <random>
+#include <string>
 #include "./common.h"
-
-int simulator(const std::string &input_file);
+#include "./real_time_queueing.h"
 
 class Simulator {
-public:
-    Simulator();
-    void load_config(const std::string &config_filename);
-    void save_config();
-    void arrive(std::mt19937 rng);
-    void depart(std::mt19937 rng);
+public:  // NOLINT
+    Simulator();  // zero-initialization
+    void init(const std::string &config_filename);
+    void save_config();  // save network config for all queueing systems
+    void arrive(std::mt19937 &rng);  // NOLINT
+    void depart(std::mt19937 &rng);  // NOLINT
     void save_deficits();
     void clock_tick();
     void progress_bar();
-private:
+    int num_iterations() const {return num_iterations_;}
+private:  // NOLINT
     NetworkType network_type_;
     int network_size_;
     int interference_radius_;  // of the conflict graph
@@ -35,12 +35,14 @@ private:
     Ratios binom_param_;  // only for binomial arrival
     IntegerVector min_delay_bound_;
     IntegerVector max_delay_bound_;
-    IntegerVector bandwidth_;
     Ratios base_qos_;
-    Ratios ratio_;
     int num_iterations_;
+    BooleanVector policy_indicator_;
+    IntegerVector bandwidth_;
+    Ratios qos_ratio_;
     QueueingSystem3D queueing_system_;
-    String3D output_filename_;
+        // per-policy, per-bandwidth, per-qos-ratio systems
+    int system_clock_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_SIMULATOR_H_

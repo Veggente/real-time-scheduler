@@ -18,13 +18,14 @@ bool cmp_deadline(const Packet &a, const Packet &b);
 
 QueueingSystem::QueueingSystem(const BooleanMatrix &m,
                                Policy s, Ratios q, int b,
-                               int d) {
+                               int d, const std::string &f) {
     maximal_schedule_matrix_ = m;
     scheduler_ = s;
     qos_ = q;
     bandwidth_ = b;
     system_clock_ = 0;
     max_delay_bound_ = d;
+    output_filename_ = f;
     network_size_ = static_cast<int>(maximal_schedule_matrix_[0].size());
     per_link_deficit_.insert(per_link_deficit_.begin(), network_size(), 0);
     PacketSet empty_packet_set;

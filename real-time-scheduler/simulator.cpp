@@ -19,248 +19,289 @@
 #include "./traffic_generator.h"
 #include "./real_time_queueing.h"
 #include "/usr/local/include/prettyprint.hpp"
+#include "./enum_parser.h"
 
-std::string policy_to_string(int p);
-void progress_bar(int time_slot, int num_iterations);
 void cannot_open_file(const std::string &filename);
 
-int simulator(const std::string &input_file) {
-    // Open input file
-    std::ifstream in(input_file);
+Simulator::Simulator() {
+    network_type_ = COLLOCATED;
+    network_size_ = 0;
+    interference_radius_ = 0;
+    maximal_schedule_matrix_ = BooleanMatrix(0);
+    arrival_dist_ = UNIFORM_PACKET;
+    min_packet_ = IntegerVector(network_size_, 0);
+    max_packet_ = IntegerVector(network_size_, 0);
+    binom_param_ = Ratios(network_size_, 0);
+    min_delay_bound_ = IntegerVector(network_size_, 0);
+    max_delay_bound_ = IntegerVector(network_size_, 0);
+    base_qos_ = Ratios(network_size_, 0);
+    num_iterations_ = 0;
+    policy_indicator_ = BooleanVector(POLICY_COUNT, false);
+    bandwidth_ = IntegerVector(0);
+    qos_ratio_ = Ratios(0);
+    queueing_system_ = QueueingSystem3D(0);
+    system_clock_ = 0;
+}
+
+void Simulator::init(const std::string &config_filename) {
+    std::ifstream in(config_filename);
     if (!in) {
-        cannot_open_file(input_file);
+        cannot_open_file(config_filename);
     }
-
-    // Variable declarations
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     std::string network_type_string;
-    NetworkType network_type;
-    int network_size;
-    int interference_radius;
-    BooleanMatrix maximal_schedule_matrix;
-    std::string arrival_dist_string;
-    ArrivalDistribution arrival_dist;
-    int min_packet = 0;  // allow zero arrival
-    int max_packet;
-    double binom_param;
-    std::string arrival_descriptor;
-    int min_delay_bound;
-    int max_delay_bound;
-    int bandwidth_count;
-    IntegerVector bandwidths;
-    Ratios qos;
-    int ratio_count;
-    Ratios ratios;
-    int num_iterations;
-
-    // Read variables from input file
-    // TODO(Veggente): format compatibility check
-    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     in >> network_type_string;
+    EnumParser<NetworkType> parser_net;
+    network_type_ = parser_net.string_to_enum(network_type_string);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> network_size;
-    if (network_type_string == "collocated") {
-        network_type = COLLOCATED;
-        maximal_schedule_matrix = gen_max_matrix_collocated(network_size);
-    } else if (network_type_string == "line") {
-        in >> interference_radius;
-        network_type = LINE;
-        maximal_schedule_matrix = gen_max_matrix_line(network_size,
-                                                      interference_radius);
-    } else if (network_type_string == "cycle") {
-        in >> interference_radius;
-        network_type = CYCLE;
-        maximal_schedule_matrix = gen_max_matrix_cycle(network_size,
-                                                       interference_radius);
-    } else {
-        std::cerr << "Error: Network type " << network_type_string
-            << " not recognized!" << std::endl;
-        exit(1);
+    in >> network_size_;
+    switch (network_type_) {
+        case COLLOCATED:
+            maximal_schedule_matrix_ = gen_max_matrix_collocated(network_size_);
+            break;
+        case LINE:
+            in >> interference_radius_;
+            maximal_schedule_matrix_ = gen_max_matrix_line(network_size_,
+                interference_radius_);
+            break;
+        case CYCLE:
+            in >> interference_radius_;
+            maximal_schedule_matrix_ = gen_max_matrix_cycle(network_size_,
+                interference_radius_);
+            break;
+        default:
+            std::cerr << "Error: network type not recognized!" << std::endl;
+            exit(1);
+            break;
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    std::string arrival_dist_string;
     in >> arrival_dist_string;
+    EnumParser<ArrivalDistribution> parser_arr;
+    arrival_dist_ = parser_arr.string_to_enum(arrival_dist_string);
+    min_packet_ = IntegerVector(network_size_, 0);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> max_packet;
-    if (arrival_dist_string == "uniform") {
-        arrival_dist = UNIFORM_PACKET;
-        arrival_descriptor = "uniform("+std::to_string(min_packet)+", "
-            +std::to_string(max_packet)+")";
-    } else if (arrival_dist_string == "binomial") {
-        arrival_dist = BINOMIAL_PACKET;
-        in >> binom_param;
-        std::ostringstream ostr;
-        ostr << binom_param;
-        arrival_descriptor = "binomial("+std::to_string(max_packet)+", "
-            +ostr.str()+")";
-    } else {
-        std::cerr << "Error: Arrival distribution " << arrival_dist_string
-            << " not recognized!" << std::endl;
-        exit(1);
+    int max_packet_per_link;
+    in >> max_packet_per_link;
+    max_packet_ = IntegerVector(network_size_, max_packet_per_link);
+    switch (arrival_dist_) {
+        case BINOMIAL_PACKET:
+            double binom_param_per_link;
+            in >> binom_param_per_link;
+            binom_param_ = Ratios(network_size_, binom_param_per_link);
+            break;
+        case UNIFORM_PACKET:
+            break;
+        default:
+            std::cerr << "Error: arrival distribution not recognized!"
+                      << std::endl;
+            exit(1);
+            break;
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> min_delay_bound;
+    int min_delay_bound_per_link;
+    in >> min_delay_bound_per_link;
+    min_delay_bound_ = IntegerVector(network_size_, min_delay_bound_per_link);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> max_delay_bound;
+    int max_delay_bound_per_link;
+    in >> max_delay_bound_per_link;
+    max_delay_bound_ = IntegerVector(network_size_, max_delay_bound_per_link);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> bandwidth_count;
-    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    for (int i = 0; i < bandwidth_count; ++i) {
-        int temp;
-        in >> temp;
-        bandwidths.push_back(temp);
+    std::string bandwidth_str;
+    std::getline(in, bandwidth_str);
+    std::istringstream bandwidth_stream(bandwidth_str);
+    std::string word;
+    bandwidth_.clear();
+    while (bandwidth_stream >> word) {
+        bandwidth_.push_back(std::stoi(word));
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    for (int i = 0; i < network_size; ++i) {
+    base_qos_.clear();
+    for (int i = 0; i < network_size_; ++i) {
         double temp;
         in >> temp;
-        qos.push_back(temp);
+        base_qos_.push_back(temp);
     }
-    double max_qos = *std::max_element(qos.begin(), qos.end());
-    for (int i = 0; i < network_size; ++i) {
-        qos[i] = qos[i] / max_qos;
-            // normalization since qos cannot be greater than 1
-    }
-    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> ratio_count;
-    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    for (int i = 0; i < ratio_count; ++i) {
-        double temp;
-        in >> temp;
-        ratios.push_back(temp);
+    double max_qos = *std::max_element(base_qos_.begin(), base_qos_.end());
+    for (int i = 0; i < network_size_; ++i) {
+        base_qos_[i] = base_qos_[i]/max_qos;
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> num_iterations;
+    std::string ratio_str;
+    std::getline(in, ratio_str);
+    std::istringstream ratio_stream(ratio_str);
+    qos_ratio_.clear();
+    while (ratio_stream >> ratio_str) {
+        qos_ratio_.push_back(std::stod(ratio_str));
+    }
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> num_iterations_;
     in.close();
-
-    // Initialize systems and names
-    std::mt19937 rng;
-    std::vector<std::vector<std::vector<QueueingSystem>>> queueing_systems;
-    std::vector<std::vector<std::vector<std::string>>> queueing_system_names;
-        // per-policy, per-bandwidth, per-qos-ratio systems
+    queueing_system_.clear();
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
         std::vector<std::vector<QueueingSystem>> temp_system_matrix;
-        std::vector<std::vector<std::string>> temp_name_matrix;
-        for (int bandwidth_it = 0; bandwidth_it < bandwidth_count;
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
              ++bandwidth_it) {
             std::vector<QueueingSystem> temp_system_vector;
-            std::vector<std::string> temp_name_vector;
-            for (int ratio_it = 0; ratio_it < ratio_count; ++ratio_it) {
-                Ratios scaled_qos = qos;
-                for (int k = 0; k < network_size; ++k) {
-                    scaled_qos[k] = scaled_qos[k]*ratios[ratio_it];
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                Ratios scaled_qos;
+                for (int i = 0; i < network_size_; ++i) {
+                    scaled_qos.push_back(base_qos_[i]*qos_ratio_[ratio_it]);
                 }
-                QueueingSystem temp_system(maximal_schedule_matrix,
-                                           static_cast<Policy>(policy_it),
-                                           scaled_qos, bandwidths[bandwidth_it],
-                                           max_delay_bound);
-                temp_system_vector.push_back(temp_system);
-                std::string temp_name = network_type_string.substr(0, 2)
-                    // TODO(Veggente): magic # 2
-                    +std::to_string(network_size);
-                if ( (network_type == LINE) || (network_type == CYCLE) ) {
-                    temp_name.append("-i"+std::to_string(interference_radius));
-                }
+                EnumParser<Policy> parser_pol;
                 std::ostringstream ostr;
-                ostr << ratios[ratio_it];
-                temp_name.append("-du"+std::to_string(max_delay_bound)+"-dl"
-                                 +std::to_string(min_delay_bound)+"-it"
-                                 +std::to_string(num_iterations)+"-"
-                                 +policy_to_string(policy_it)+"-b"
-                                 +std::to_string(bandwidths[bandwidth_it])+"-r"
-                                 +ostr.str()+".txt");
-                temp_name_vector.push_back(temp_name);
+                ostr << qos_ratio_[ratio_it];
+                std::string temp_name =
+                    parser_net.enum_to_string(network_type_).substr(0,
+                    NETWORK_TYPE_ID_LEN)+std::to_string(network_size_)+"-it"
+                    +std::to_string(num_iterations_)+"-"
+                    +parser_pol.enum_to_string(static_cast<Policy>(policy_it))
+                    +"-b"+std::to_string(bandwidth_[bandwidth_it])+"-r"
+                    +ostr.str()+".txt";
+                QueueingSystem temp_system(maximal_schedule_matrix_,
+                                           static_cast<Policy>(policy_it),
+                                           scaled_qos, bandwidth_[bandwidth_it],
+                                           max_delay_bound_per_link, temp_name);
+                temp_system_vector.push_back(temp_system);
+            }
+            temp_system_matrix.push_back(temp_system_vector);
+        }
+        queueing_system_.push_back(temp_system_matrix);
+    }
+    system_clock_ = 0;
+}
 
-                // Output network configuration to file
-                std::ofstream out(temp_name, std::ofstream::trunc);
+void Simulator::save_config() {
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                    queueing_system_[policy_it][bandwidth_it][ratio_it];
+                std::ofstream out(this_system.output_filename(),
+                                  std::ofstream::trunc);
                 if (!out) {
-                    std::cerr << "Error: Could not open file " << temp_name
-                        << "!" << std::endl;
-                    exit(1);
+                    cannot_open_file(this_system.output_filename());
                 }
                 out << "============Network Configuration============"
                     << std::endl;
-                out << "Network type: " << network_type_string << std::endl;
-                out << "Network size: " << network_size << std::endl;
-                if ( (network_type == LINE) || (network_type == CYCLE) ) {
-                    out << "Interference radius: " << interference_radius
+                EnumParser<NetworkType> parser_net;
+                out << "Network type: "
+                    << parser_net.enum_to_string(network_type_)
+                    << std::endl;
+                out << "Network size: " << network_size_ << std::endl;
+                if ( (network_type_ == LINE) || (network_type_ == CYCLE) ) {
+                    out << "Interference radius: " << interference_radius_
                         << std::endl;
                 }
-                out << "Policy: " << policy_to_string(policy_it) << std::endl;
-                out << "Max delay bound: " << max_delay_bound << std::endl;
-                out << "Min delay bound: " << min_delay_bound << std::endl;
-                out << "Bandwidth: " << bandwidths[bandwidth_it] << std::endl;
-                out << "Arrival distribution: " << arrival_descriptor
+                EnumParser<Policy> parser_pol;
+                out << "Policy: "
+                    << parser_pol.enum_to_string(static_cast<Policy>(policy_it))
                     << std::endl;
-                out << "Delay bound distribution: uniform(" << min_delay_bound
-                    << ", " << max_delay_bound << ")" << std::endl;
-                out << "Base QoS: " << qos << std::endl;
-                out << "QoS scalar: " << ratios[ratio_it] << std::endl;
-                out << "Number of iterations: " << num_iterations << std::endl;
+                out << "Max delay bound for link 1: " << max_delay_bound_[0]
+                    << std::endl;
+                out << "Min delay bound for link 1: " << min_delay_bound_[0]
+                    << std::endl;
+                out << "Bandwidth: " << bandwidth_[bandwidth_it] << std::endl;
+                EnumParser<ArrivalDistribution> parser_arr;
+                out << "Arrival distribution for link 1: "
+                    << parser_arr.enum_to_string(arrival_dist_) << "(";
+                if (arrival_dist_ == UNIFORM_PACKET) {
+                    out << min_packet_[0] << ", " << max_packet_[0];
+                } else if (arrival_dist_ == BINOMIAL_PACKET) {
+                    out << max_packet_[0] << ", " << binom_param_[0];
+                }
+                out << ")" << std::endl;
+                out << "Delay bound distribution for link 1: uniform("
+                    << min_delay_bound_[0]
+                    << ", " << max_delay_bound_[0] << ")" << std::endl;
+                out << "Base QoS: " << base_qos_ << std::endl;
+                out << "QoS scalar: " << qos_ratio_[ratio_it] << std::endl;
+                out << "Number of iterations: " << num_iterations_ << std::endl;
                 out << std::endl;
                 out << "==================Deficits==================="
                     << std::endl;
                 out.close();
             }
-            temp_system_matrix.push_back(temp_system_vector);
-            temp_name_matrix.push_back(temp_name_vector);
         }
-        queueing_systems.push_back(temp_system_matrix);
-        queueing_system_names.push_back(temp_name_matrix);
     }
+}
 
-    // Network evolution
-    for (int time_slot = 0; time_slot < num_iterations; ++time_slot) {
-        Traffic traffic;
-        if (arrival_dist == BINOMIAL_PACKET) {
-            traffic = generate_binomial_traffic(network_size, time_slot,
-                                                max_packet, binom_param,
-                                                min_delay_bound,
-                                                max_delay_bound, rng);
-        } else if (arrival_dist == UNIFORM_PACKET) {
-            traffic = generate_uniform_traffic(network_size, time_slot,
-                                               min_packet, max_packet,
-                                               min_delay_bound, max_delay_bound,
-                                               rng);
-        } else {
-            // TODO(Veggente): should not happen
-        }
-        for (int i = 0; i < POLICY_COUNT; ++i) {
-            for (int j = 0; j < bandwidth_count; ++j) {
-                for (int ratio_it = 0; ratio_it < ratio_count; ++ratio_it) {
-                    queueing_systems[i][j][ratio_it].arrive(traffic, rng);
-                    queueing_systems[i][j][ratio_it].depart(rng);
-                    queueing_systems[i][j][ratio_it].output_deficits(
-                        queueing_system_names[i][j][ratio_it]);
-                    queueing_systems[i][j][ratio_it].clock_tick();
-                }
+void Simulator::arrive(std::mt19937 &rng) {  // NOLINT
+    Traffic traffic;
+    if (arrival_dist_ == BINOMIAL_PACKET) {
+        traffic = generate_binomial_traffic(network_size_, system_clock_,
+                                            max_packet_, binom_param_,
+                                            min_delay_bound_,
+                                            max_delay_bound_, rng);
+    } else if (arrival_dist_ == UNIFORM_PACKET) {
+        traffic = generate_uniform_traffic(network_size_, system_clock_,
+                                           min_packet_, max_packet_,
+                                           min_delay_bound_, max_delay_bound_,
+                                           rng);
+    } else {
+        std::cerr << "Error: arrival distribution not recognized!" << std::endl;
+        exit(1);
+    }
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                    queueing_system_[policy_it][bandwidth_it][ratio_it];
+                this_system.arrive(traffic, rng);
             }
         }
-        progress_bar(time_slot, num_iterations);
-    }
-    return 0;
-}
-
-std::string policy_to_string(int p) {
-    switch (p) {
-        case LDF:
-            return "ldf";
-        case EDF:
-            return "edf";
-        case SDBF:
-            return "sdbf";
-
-        default:
-            return "";
-            break;
     }
 }
 
-void progress_bar(int time_slot, int num_iterations) {
-    if (time_slot == num_iterations-1) {
-        std::cout << "\rDone!           " << std::endl;;
-    } else if (time_slot*HUNDRED/num_iterations !=
-               (time_slot-1)*HUNDRED/num_iterations) {
-        std::cout << "\r" << time_slot*HUNDRED/num_iterations << "% completed"
-            << std::flush;
+void Simulator::depart(std::mt19937 &rng) {  // NOLINT
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                    queueing_system_[policy_it][bandwidth_it][ratio_it];
+                this_system.depart(rng);
+            }
+        }
+    }
+}
+
+void Simulator::save_deficits() {
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                    queueing_system_[policy_it][bandwidth_it][ratio_it];
+                this_system.output_deficits(this_system.output_filename());
+            }
+        }
+    }
+}
+
+void Simulator::clock_tick() {
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                    queueing_system_[policy_it][bandwidth_it][ratio_it];
+                this_system.clock_tick();
+            }
+        }
+    }
+    ++system_clock_;
+}
+
+void Simulator::progress_bar() {
+    if (system_clock_ == num_iterations_-1) {
+        std::cout << "\rDone!           " << std::endl;
+    } else if (system_clock_*HUNDRED/num_iterations_ !=
+               (system_clock_-1)*HUNDRED/num_iterations_) {
+        std::cout << "\r" << system_clock_*HUNDRED/num_iterations_
+                  << "% completed" << std::flush;
     }
 }
 

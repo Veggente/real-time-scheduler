@@ -23,18 +23,21 @@ enum Policy {
 enum TieBreaker {
     RANDOM,  // uniformly random tie-breaker
     DEADLINE,  // earliest-deadline-first tie-breaker
-    DELAY_BOUND  // shortest-delay-bound-first tie-breaker
+    DELAY_BOUND,  // shortest-delay-bound-first tie-breaker
+    TIE_BREAKER_COUNT
 };
 
 enum NetworkType {
     COLLOCATED,
     LINE,
-    CYCLE
+    CYCLE,
+    NETWORK_TYPE_COUNT
 };
 
 enum ArrivalDistribution {
     UNIFORM_PACKET,
-    BINOMIAL_PACKET
+    BINOMIAL_PACKET,
+    ARRIVAL_DIST_COUNT
 };
 
 class Packet;
@@ -53,8 +56,8 @@ typedef std::pair<int, int> IndexPair;  // (priority, index) pair
 typedef std::vector<IndexPair> IndexMapping;
     // (priority, index) mapping
 typedef std::vector<std::vector<std::vector<QueueingSystem>>> QueueingSystem3D;
-typedef std::vector<std::vector<std::vector<std::string>>> String3D;
 
 const int HUNDRED = 100;
+const int NETWORK_TYPE_ID_LEN = 2;
 
 #endif  // REAL_TIME_SCHEDULER_COMMON_H_

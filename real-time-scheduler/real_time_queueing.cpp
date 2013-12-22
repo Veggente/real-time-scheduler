@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <fstream>  // NOLINT
 #include <string>
+#include <numeric>
+#include "/usr/local/include/prettyprint.hpp"
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
                          std::mt19937 &rng);
@@ -18,7 +20,7 @@ bool cmp_deadline(const Packet &a, const Packet &b);
 
 QueueingSystem::QueueingSystem(const BooleanMatrix &m,
                                Policy s, Ratios q, int b,
-                               int d, const std::string &f) {
+                               int d, const std::string &f, int n) {
     maximal_schedule_matrix_ = m;
     scheduler_ = s;
     qos_ = q;
@@ -36,6 +38,9 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
     } else {
         intra_link_tie_breaker_ = DEADLINE;
     }
+    lower_deficit_sum_ = 0;
+    upper_deficit_sum_ = 0;
+    num_iterations_ = n;
 }
 
 void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
@@ -125,6 +130,38 @@ void QueueingSystem::output_deficits(const std::string &filename) {
     }
     out << per_link_deficit().back() << std::endl;
     out.close();
+}
+
+int QueueingSystem::quarter_point() {
+    return static_cast<int>(static_cast<double>(num_iterations_)/4);
+}
+
+int QueueingSystem::half_point() {
+    return static_cast<int>(static_cast<double>(num_iterations_)/2);
+}
+
+void QueueingSystem::update_stability_counter() {
+    if (system_clock() >= quarter_point()) {
+        int current_deficit_sum = 0;
+        for (int i = 0; i < network_size(); ++i) {
+            current_deficit_sum += per_link_deficit()[i];
+        }
+        if (system_clock() >= half_point()) {
+            upper_deficit_sum_ += current_deficit_sum;
+        } else {
+            lower_deficit_sum_ += current_deficit_sum;
+        }
+    }
+}
+
+double QueueingSystem::stability_ratio() {
+    if ( (lower_deficit_sum() == 0) || (upper_deficit_sum() == 0) ) {
+        return 0.0;
+    } else {
+        return static_cast<double>(upper_deficit_sum())
+            /(num_iterations_-half_point())/lower_deficit_sum()
+            *(half_point()-quarter_point());
+    }
 }
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,

@@ -11,6 +11,7 @@
 
 int main(int argc, const char * argv[]) {
     std::string input_file(argv[1]);  // TODO(Veggente): check arguments
+    std::string stability_file(argv[2]);
     Simulator simulator;
     simulator.init(input_file);
     simulator.save_config();
@@ -19,8 +20,10 @@ int main(int argc, const char * argv[]) {
          ++time_slot) {
         simulator.arrive(rng);
         simulator.depart(rng);
-        simulator.save_deficits();
+        simulator.update_stability_counter();
+        // simulator.save_deficits();
         simulator.progress_bar();
         simulator.clock_tick();
     }
+    simulator.save_stability_ratios(stability_file);
 }

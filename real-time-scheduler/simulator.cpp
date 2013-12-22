@@ -176,7 +176,8 @@ void Simulator::init(const std::string &config_filename) {
                 QueueingSystem temp_system(maximal_schedule_matrix_,
                                            static_cast<Policy>(policy_it),
                                            scaled_qos, bandwidth_[bandwidth_it],
-                                           max_delay_bound_per_link, temp_name);
+                                           max_delay_bound_per_link, temp_name,
+                                           num_iterations());
                 temp_system_vector.push_back(temp_system);
             }
             temp_system_matrix.push_back(temp_system_vector);
@@ -333,6 +334,50 @@ void Simulator::progress_bar() {
         std::cout << "\r" << system_clock_*HUNDRED/num_iterations_
                   << "% completed" << std::flush;
     }
+}
+
+void Simulator::update_stability_counter() {
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                queueing_system_[policy_it][bandwidth_it][ratio_it];
+                this_system.update_stability_counter();
+            }
+        }
+    }
+}
+
+void Simulator::save_stability_ratios(const std::string &stability_filename) {
+    std::ofstream out(stability_filename);
+    if (!out) {
+        cannot_open_file(stability_filename);
+    }
+    out << "Bandwidths: " << bandwidth_ << std::endl;
+    out << "Number of iterations: " << num_iterations_ << std::endl;
+    out << "Ratios: "  << qos_ratio_ << std::endl;
+    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
+        EnumParser<Policy> parser_pol;
+        out << parser_pol.enum_to_string(static_cast<Policy>(policy_it))
+            << ":" << std::endl;
+        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+             ++bandwidth_it) {
+            for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
+                auto &this_system =
+                    queueing_system_[policy_it][bandwidth_it][ratio_it];
+                out << qos_ratio_[ratio_it] << " "
+                    << this_system.stability_ratio() << std::endl;
+            }
+        }
+    }
+    out.close();
 }
 
 BooleanVector int_to_bool_vec(int a) {  // TODO(Veggente): generalized case

@@ -20,10 +20,12 @@ public:  // NOLINT
     void save_config();  // save network config for all queueing systems
     void arrive(std::mt19937 &rng);  // NOLINT
     void depart(std::mt19937 &rng);  // NOLINT
+    void update_stability_counter();
     void save_deficits();
     void clock_tick();
     void progress_bar();
     int num_iterations() const {return num_iterations_;}
+    void save_stability_ratios(const std::string &stability_filename);
 private:  // NOLINT
     NetworkType network_type_;
     int network_size_;

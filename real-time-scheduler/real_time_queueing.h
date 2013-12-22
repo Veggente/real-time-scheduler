@@ -30,7 +30,7 @@ class QueueingSystem {
 public:  // NOLINT
     QueueingSystem(const BooleanMatrix &m,
                    Policy s, Ratios q, int b,
-                   int d, const std::string &f);
+                   int d, const std::string &f, int n);
     Queues per_link_queue() const {return per_link_queue_;}
     Counters per_link_deficit() const {return per_link_deficit_;}
     int network_size() const {return network_size_;}
@@ -48,6 +48,12 @@ public:  // NOLINT
     Counters queue_lengths();
     void depart(std::mt19937 &rng);  // NOLINT
     void output_deficits(const std::string &filename);
+    int quarter_point();  // quarter point integer among num_iterations
+    int half_point();  // half point integer among num_iterations
+    void update_stability_counter();
+    int lower_deficit_sum() const {return lower_deficit_sum_;}
+    int upper_deficit_sum() const {return upper_deficit_sum_;}
+    double stability_ratio();
 private:  // NOLINT
     Queues per_link_queue_;
     Counters per_link_deficit_;
@@ -60,6 +66,9 @@ private:  // NOLINT
     int system_clock_;
     int max_delay_bound_;
     std::string output_filename_;
+    int lower_deficit_sum_;  // quarter-to-half deficit sum
+    int upper_deficit_sum_;  // half-to-whole deficit sum
+    int num_iterations_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_

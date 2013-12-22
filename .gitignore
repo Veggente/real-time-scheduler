@@ -167,3 +167,4 @@ xcuserdata
 real-time-scheduler.xcodeproj/
 *.txt
 real-time-scheduler/real-time-scheduler
+test_data/

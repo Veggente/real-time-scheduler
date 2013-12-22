@@ -21,7 +21,7 @@
 #include "/usr/local/include/prettyprint.hpp"
 #include "./enum_parser.h"
 
-void cannot_open_file(const std::string &filename);
+BooleanVector int_to_bool_vec(int a);  // TODO(Veggente): generalized case
 
 Simulator::Simulator() {
     network_type_ = COLLOCATED;
@@ -68,6 +68,12 @@ void Simulator::init(const std::string &config_filename) {
             in >> interference_radius_;
             maximal_schedule_matrix_ = gen_max_matrix_cycle(network_size_,
                 interference_radius_);
+            break;
+        case UNIT_DISK:
+            maximal_schedule_matrix_ = load_network("network.txt");
+            network_size_ =
+                static_cast<int>(maximal_schedule_matrix_[0].size());
+                // previous assigned network size ignored
             break;
         default:
             std::cerr << "Error: network type not recognized!" << std::endl;
@@ -117,14 +123,19 @@ void Simulator::init(const std::string &config_filename) {
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     base_qos_.clear();
-    for (int i = 0; i < network_size_; ++i) {
-        double temp;
-        in >> temp;
-        base_qos_.push_back(temp);
-    }
-    double max_qos = *std::max_element(base_qos_.begin(), base_qos_.end());
-    for (int i = 0; i < network_size_; ++i) {
-        base_qos_[i] = base_qos_[i]/max_qos;
+    if (network_type_ == UNIT_DISK) {
+        base_qos_ = Ratios(network_size_, 1);
+            // ignore the input file and set all base QoS to 1
+    } else {
+        for (int i = 0; i < network_size_; ++i) {
+            double temp;
+            in >> temp;
+            base_qos_.push_back(temp);
+        }
+        double max_qos = *std::max_element(base_qos_.begin(), base_qos_.end());
+        for (int i = 0; i < network_size_; ++i) {
+            base_qos_[i] = base_qos_[i]/max_qos;
+        }
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     std::string ratio_str;
@@ -136,6 +147,10 @@ void Simulator::init(const std::string &config_filename) {
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     in >> num_iterations_;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    int policy_indicator_int;
+    in >> policy_indicator_int;
+    policy_indicator_ = int_to_bool_vec(policy_indicator_int);
     in.close();
     queueing_system_.clear();
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
@@ -173,6 +188,9 @@ void Simulator::init(const std::string &config_filename) {
 
 void Simulator::save_config() {
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
         for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
              ++bandwidth_it) {
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
@@ -244,6 +262,9 @@ void Simulator::arrive(std::mt19937 &rng) {  // NOLINT
         exit(1);
     }
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
         for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
              ++bandwidth_it) {
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
@@ -257,6 +278,9 @@ void Simulator::arrive(std::mt19937 &rng) {  // NOLINT
 
 void Simulator::depart(std::mt19937 &rng) {  // NOLINT
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
         for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
              ++bandwidth_it) {
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
@@ -270,6 +294,9 @@ void Simulator::depart(std::mt19937 &rng) {  // NOLINT
 
 void Simulator::save_deficits() {
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
         for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
              ++bandwidth_it) {
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
@@ -283,6 +310,9 @@ void Simulator::save_deficits() {
 
 void Simulator::clock_tick() {
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+        if (!policy_indicator_[policy_it]) {
+            continue;
+        }
         for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
              ++bandwidth_it) {
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
@@ -305,8 +335,16 @@ void Simulator::progress_bar() {
     }
 }
 
-void cannot_open_file(const std::string &filename) {
-    std::cerr << "Error: Cannot open file " << filename << "!"
-        << std::endl;
-    exit(1);
+BooleanVector int_to_bool_vec(int a) {  // TODO(Veggente): generalized case
+    BooleanVector indicator(3, false);
+    if (a > 3) {
+        indicator[2] = true;
+    }
+    if (a%4 > 1) {
+        indicator[1] = true;
+    }
+    if (a%2 > 0) {
+        indicator[0] = true;
+    }
+    return indicator;
 }

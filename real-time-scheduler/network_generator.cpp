@@ -7,6 +7,10 @@
 
 #include "./network_generator.h"
 #include <map>
+#include <fstream>  // NOLINT
+#include <sstream>
+#include <string>
+#include <limits>
 
 BooleanMatrix gen_max_matrix_collocated(int network_size) {
     BooleanMatrix maximal_schedule_matrix;
@@ -106,4 +110,32 @@ BooleanMatrix
         matrix_known[network_size] = maximal_matrix;
         return maximal_matrix;
     }
+}
+
+BooleanMatrix load_network(const std::string network_filename) {
+    BooleanMatrix maximal_schedule_matrix;
+    int network_size;
+    int num_maximal_schedules;
+    std::ifstream in(network_filename);
+    if (!in) {
+        cannot_open_file(network_filename);
+    }
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> network_size;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> num_maximal_schedules;
+    maximal_schedule_matrix = BooleanMatrix(num_maximal_schedules,
+                                            BooleanVector(network_size, false));
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    std::string max_schedule_str;
+    std::getline(in, max_schedule_str);  // to omit the first empty line
+    for (int i = 0; i < num_maximal_schedules; ++i) {
+        std::getline(in, max_schedule_str);
+        std::istringstream max_schedule_stream(max_schedule_str);
+        std::string word;
+        while (max_schedule_stream >> word) {
+            maximal_schedule_matrix[i][std::stoi(word)-1] = true;
+        }
+    }
+    return maximal_schedule_matrix;
 }

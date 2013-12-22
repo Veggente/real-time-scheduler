@@ -9,6 +9,7 @@
 #define REAL_TIME_SCHEDULER_NETWORK_GENERATOR_H_
 
 #include <vector>
+#include <string>
 #include "./common.h"
 
 BooleanMatrix gen_max_matrix_collocated(int network_size);
@@ -24,6 +25,8 @@ BooleanMatrix
 gen_max_matrix_line_recursive_with_duplicate_check(int network_size,
     int interference_radius, BooleanMatrixMap& matrix_known);
     // for recursively generating line networks
+
+BooleanMatrix load_network(const std::string network_filename);
 
 template <typename Type>
 std::vector<std::vector<Type>> append_vector(

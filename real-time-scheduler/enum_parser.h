@@ -61,9 +61,11 @@ EnumParser<NetworkType>::EnumParser() {
     enum_to_string_[COLLOCATED] = "collocated";
     enum_to_string_[LINE] = "line";
     enum_to_string_[CYCLE] = "cycle";
+    enum_to_string_[UNIT_DISK] = "unit-disk";
     string_to_enum_["collocated"] = COLLOCATED;
     string_to_enum_["line"] = LINE;
     string_to_enum_["cycle"] = CYCLE;
+    string_to_enum_["unit-disk"] = UNIT_DISK;
 }
 
 template<>

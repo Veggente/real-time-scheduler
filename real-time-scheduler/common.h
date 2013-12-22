@@ -12,6 +12,7 @@
 #include <map>
 #include <utility>
 #include <string>
+#include <iostream>  // NOLINT
 
 enum Policy {
     LDF,  // largest-deficit-first
@@ -31,6 +32,7 @@ enum NetworkType {
     COLLOCATED,
     LINE,
     CYCLE,
+    UNIT_DISK,
     NETWORK_TYPE_COUNT
 };
 
@@ -59,5 +61,11 @@ typedef std::vector<std::vector<std::vector<QueueingSystem>>> QueueingSystem3D;
 
 const int HUNDRED = 100;
 const int NETWORK_TYPE_ID_LEN = 2;
+
+inline void cannot_open_file(const std::string &filename) {
+    std::cerr << "Error: Cannot open file " << filename << "!"
+    << std::endl;
+    exit(1);
+}
 
 #endif  // REAL_TIME_SCHEDULER_COMMON_H_

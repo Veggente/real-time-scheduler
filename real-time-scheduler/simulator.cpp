@@ -43,7 +43,7 @@ Simulator::Simulator() {
     system_clock_ = 0;
 }
 
-void Simulator::init(const std::string &config_filename, std::mt19937 &rng) {
+void Simulator::init(const std::string &config_filename, const std::string &network_filename, std::mt19937 &rng) {
     std::ifstream in(config_filename);
     if (!in) {
         cannot_open_file(config_filename);
@@ -70,7 +70,7 @@ void Simulator::init(const std::string &config_filename, std::mt19937 &rng) {
                 interference_radius_);
             break;
         case UNIT_DISK:
-            maximal_schedule_matrix_ = load_network("network.txt");
+            maximal_schedule_matrix_ = load_network(network_filename);
             network_size_ =
                 static_cast<int>(maximal_schedule_matrix_[0].size());
                 // previous assigned network size ignored
@@ -79,6 +79,12 @@ void Simulator::init(const std::string &config_filename, std::mt19937 &rng) {
             std::cerr << "Error: network type not recognized!" << std::endl;
             exit(1);
             break;
+    }
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    int timed_seed_indicator;
+    in >> timed_seed_indicator;
+    if (timed_seed_indicator != 0) {
+        rng.seed(static_cast<unsigned int>(std::time(NULL)));
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     std::string arrival_dist_string;

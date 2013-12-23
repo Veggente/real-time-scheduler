@@ -81,12 +81,6 @@ void Simulator::init(const std::string &config_filename, const std::string &netw
             break;
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    int timed_seed_indicator;
-    in >> timed_seed_indicator;
-    if (timed_seed_indicator != 0) {
-        rng.seed(static_cast<unsigned int>(std::time(NULL)));
-    }
-    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     std::string arrival_dist_string;
     in >> arrival_dist_string;
     EnumParser<ArrivalDistribution> parser_arr;
@@ -192,6 +186,12 @@ void Simulator::init(const std::string &config_filename, const std::string &netw
     int policy_indicator_int;
     in >> policy_indicator_int;
     policy_indicator_ = int_to_bool_vec(policy_indicator_int);
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    int timed_seed_indicator;
+    in >> timed_seed_indicator;
+    if (timed_seed_indicator != 0) {
+        rng.seed(static_cast<unsigned int>(std::time(NULL)));
+    }
     in.close();
     queueing_system_.clear();
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {

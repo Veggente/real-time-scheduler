@@ -45,6 +45,7 @@ private:  // NOLINT
     QueueingSystem3D queueing_system_;
         // per-policy, per-bandwidth, per-qos-ratio systems
     int system_clock_;
+    int rng_seed_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_SIMULATOR_H_

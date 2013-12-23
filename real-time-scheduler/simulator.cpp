@@ -41,6 +41,7 @@ Simulator::Simulator() {
     qos_ratio_ = Ratios(0);
     queueing_system_ = QueueingSystem3D(0);
     system_clock_ = 0;
+    rng_seed_ = 0;
 }
 
 void Simulator::init(const std::string &config_filename, const std::string &network_filename, std::mt19937 &rng) {
@@ -190,7 +191,8 @@ void Simulator::init(const std::string &config_filename, const std::string &netw
     int timed_seed_indicator;
     in >> timed_seed_indicator;
     if (timed_seed_indicator != 0) {
-        rng.seed(static_cast<unsigned int>(std::time(NULL)));
+        rng_seed_ = static_cast<unsigned int>(std::time(NULL));
+        rng.seed(rng_seed_);
     }
     in.close();
     queueing_system_.clear();
@@ -278,7 +280,7 @@ void Simulator::save_config() {
                 out << "Base QoS: " << base_qos_ << std::endl;
                 out << "QoS scalar: " << qos_ratio_[ratio_it] << std::endl;
                 out << "Number of iterations: " << num_iterations_ << std::endl;
-                out << std::endl;
+                out << "Random seed: " << rng_seed_ << std::endl;
                 out << "==================Deficits==================="
                     << std::endl;
                 out.close();

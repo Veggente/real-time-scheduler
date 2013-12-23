@@ -43,7 +43,7 @@ Simulator::Simulator() {
     system_clock_ = 0;
 }
 
-void Simulator::init(const std::string &config_filename) {
+void Simulator::init(const std::string &config_filename, std::mt19937 &rng) {
     std::ifstream in(config_filename);
     if (!in) {
         cannot_open_file(config_filename);
@@ -54,7 +54,7 @@ void Simulator::init(const std::string &config_filename) {
     EnumParser<NetworkType> parser_net;
     network_type_ = parser_net.string_to_enum(network_type_string);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> network_size_;
+    in >> network_size_;  // TODO(Veggente): will be ignored for unit-disk
     switch (network_type_) {
         case COLLOCATED:
             maximal_schedule_matrix_ = gen_max_matrix_collocated(network_size_);
@@ -87,17 +87,42 @@ void Simulator::init(const std::string &config_filename) {
     arrival_dist_ = parser_arr.string_to_enum(arrival_dist_string);
     min_packet_ = IntegerVector(network_size_, 0);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    int max_packet_per_link;
-    in >> max_packet_per_link;
-    max_packet_ = IntegerVector(network_size_, max_packet_per_link);
+    BooleanVector type_indicator(network_size_/2, false);
+    type_indicator.insert(type_indicator.end(),
+                          network_size_-network_size_/2, true);
     switch (arrival_dist_) {
         case BINOMIAL_PACKET:
-            double binom_param_per_link;
-            in >> binom_param_per_link;
-            binom_param_ = Ratios(network_size_, binom_param_per_link);
+        {
+            int max_packet_type_1, max_packet_type_2;
+            double binom_param_type_1, binom_param_type_2;
+            in >> max_packet_type_1 >> binom_param_type_1
+               >> max_packet_type_2 >> binom_param_type_2;
+            std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
+            for (int i = 0; i < network_size_; ++i) {
+                if (type_indicator[i]) {
+                    max_packet_.push_back(max_packet_type_1);
+                    binom_param_.push_back(binom_param_type_1);
+                } else {
+                    max_packet_.push_back(max_packet_type_2);
+                    binom_param_.push_back(binom_param_type_2);
+                }
+            }
             break;
+        }
         case UNIFORM_PACKET:
+        {
+            int max_packet_type_1, max_packet_type_2;
+            in >> max_packet_type_1 >> max_packet_type_2;
+            std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
+            for (int i = 0; i < network_size_; ++i) {
+                if (type_indicator[i]) {
+                    max_packet_.push_back(max_packet_type_1);
+                } else {
+                    max_packet_.push_back(max_packet_type_2);
+                }
+            }
             break;
+        }
         default:
             std::cerr << "Error: arrival distribution not recognized!"
                       << std::endl;
@@ -105,13 +130,23 @@ void Simulator::init(const std::string &config_filename) {
             break;
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    int min_delay_bound_per_link;
-    in >> min_delay_bound_per_link;
-    min_delay_bound_ = IntegerVector(network_size_, min_delay_bound_per_link);
+    int min_delay_bound_type_1, min_delay_bound_type_2;
+    in >> min_delay_bound_type_1 >> min_delay_bound_type_2;
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    int max_delay_bound_per_link;
-    in >> max_delay_bound_per_link;
-    max_delay_bound_ = IntegerVector(network_size_, max_delay_bound_per_link);
+    int max_delay_bound_type_1, max_delay_bound_type_2;
+    in >> max_delay_bound_type_1 >> max_delay_bound_type_2;
+    int max_delay_bound_overall = std::max(max_delay_bound_type_1,
+                                           max_delay_bound_type_2);
+    std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
+    for (int i = 0; i < network_size_; ++i) {
+        if (type_indicator[i]) {
+            min_delay_bound_.push_back(min_delay_bound_type_1);
+            max_delay_bound_.push_back(max_delay_bound_type_1);
+        } else {
+            min_delay_bound_.push_back(min_delay_bound_type_2);
+            max_delay_bound_.push_back(max_delay_bound_type_2);
+        }
+    }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     std::string bandwidth_str;
     std::getline(in, bandwidth_str);
@@ -176,7 +211,7 @@ void Simulator::init(const std::string &config_filename) {
                 QueueingSystem temp_system(maximal_schedule_matrix_,
                                            static_cast<Policy>(policy_it),
                                            scaled_qos, bandwidth_[bandwidth_it],
-                                           max_delay_bound_per_link, temp_name,
+                                           max_delay_bound_overall, temp_name,
                                            num_iterations());
                 temp_system_vector.push_back(temp_system);
             }
@@ -358,8 +393,6 @@ void Simulator::save_stability_ratios(const std::string &stability_filename) {
         cannot_open_file(stability_filename);
     }
     out << "Bandwidths: " << bandwidth_ << std::endl;
-    out << "Number of iterations: " << num_iterations_ << std::endl;
-    out << "Ratios: "  << qos_ratio_ << std::endl;
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
         if (!policy_indicator_[policy_it]) {
             continue;
@@ -372,7 +405,7 @@ void Simulator::save_stability_ratios(const std::string &stability_filename) {
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
                 auto &this_system =
                     queueing_system_[policy_it][bandwidth_it][ratio_it];
-                out << qos_ratio_[ratio_it] << " "
+                out << num_iterations() << " " << qos_ratio_[ratio_it] << " "
                     << this_system.stability_ratio() << std::endl;
             }
         }

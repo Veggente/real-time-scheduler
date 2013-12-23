@@ -12,10 +12,10 @@
 int main(int argc, const char * argv[]) {
     std::string input_file(argv[1]);  // TODO(Veggente): check arguments
     std::string stability_file(argv[2]);
-    Simulator simulator;
-    simulator.init(input_file);
-    simulator.save_config();
     std::mt19937 rng;
+    Simulator simulator;
+    simulator.init(input_file, rng);
+    // simulator.save_config();
     for (int time_slot = 0; time_slot < simulator.num_iterations();
          ++time_slot) {
         simulator.arrive(rng);

@@ -260,27 +260,28 @@ void Simulator::save_config() {
                 out << "Policy: "
                     << parser_pol.enum_to_string(static_cast<Policy>(policy_it))
                     << std::endl;
-                out << "Max delay bound for link 1: " << max_delay_bound_[0]
+                out << "Max delay bound: " << max_delay_bound_
                     << std::endl;
-                out << "Min delay bound for link 1: " << min_delay_bound_[0]
+                out << "Min delay bound: " << min_delay_bound_
                     << std::endl;
                 out << "Bandwidth: " << bandwidth_[bandwidth_it] << std::endl;
                 EnumParser<ArrivalDistribution> parser_arr;
-                out << "Arrival distribution for link 1: "
-                    << parser_arr.enum_to_string(arrival_dist_) << "(";
-                if (arrival_dist_ == UNIFORM_PACKET) {
-                    out << min_packet_[0] << ", " << max_packet_[0];
-                } else if (arrival_dist_ == BINOMIAL_PACKET) {
-                    out << max_packet_[0] << ", " << binom_param_[0];
-                }
-                out << ")" << std::endl;
-                out << "Delay bound distribution for link 1: uniform("
-                    << min_delay_bound_[0]
-                    << ", " << max_delay_bound_[0] << ")" << std::endl;
+                out << "Max arrival: " << max_packet_ << std::endl;
+//                out << "Arrival distribution for link 1: "
+//                    << parser_arr.enum_to_string(arrival_dist_) << "(";
+//                if (arrival_dist_ == UNIFORM_PACKET) {
+//                    out << min_packet_[0] << ", " << max_packet_[0];
+//                } else if (arrival_dist_ == BINOMIAL_PACKET) {
+//                    out << max_packet_[0] << ", " << binom_param_[0];
+//                }
+//                out << ")" << std::endl;
+//                out << "Delay bound distribution for link 1: uniform("
+//                    << min_delay_bound_[0]
+//                    << ", " << max_delay_bound_[0] << ")" << std::endl;
                 out << "Base QoS: " << base_qos_ << std::endl;
                 out << "QoS scalar: " << qos_ratio_[ratio_it] << std::endl;
                 out << "Number of iterations: " << num_iterations_ << std::endl;
-                out << "Random seed: " << rng_seed_ << std::endl;
+                out << "Random seed: " << rng_seed_ << std::endl << std::endl;
                 out << "==================Deficits==================="
                     << std::endl;
                 out.close();

@@ -51,8 +51,8 @@ public:  // NOLINT
     int quarter_point();  // quarter point integer among num_iterations
     int half_point();  // half point integer among num_iterations
     void update_stability_counter();
-    int lower_deficit_sum() const {return lower_deficit_sum_;}
-    int upper_deficit_sum() const {return upper_deficit_sum_;}
+    double lower_deficit_sum() const {return lower_deficit_sum_;}
+    double upper_deficit_sum() const {return upper_deficit_sum_;}
     double stability_ratio();
 private:  // NOLINT
     Queues per_link_queue_;
@@ -66,8 +66,8 @@ private:  // NOLINT
     int system_clock_;
     int max_delay_bound_;
     std::string output_filename_;
-    int lower_deficit_sum_;  // quarter-to-half deficit sum
-    int upper_deficit_sum_;  // half-to-whole deficit sum
+    double lower_deficit_sum_;  // quarter-to-half deficit sum
+    double upper_deficit_sum_;  // half-to-whole deficit sum
     int num_iterations_;
 };
 

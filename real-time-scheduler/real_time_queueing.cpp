@@ -147,9 +147,9 @@ void QueueingSystem::update_stability_counter() {
             current_deficit_sum += per_link_deficit()[i];
         }
         if (system_clock() >= half_point()) {
-            upper_deficit_sum_ += current_deficit_sum;
+            upper_deficit_sum_ += static_cast<double>(current_deficit_sum);
         } else {
-            lower_deficit_sum_ += current_deficit_sum;
+            lower_deficit_sum_ += static_cast<double>(current_deficit_sum);
         }
     }
 }

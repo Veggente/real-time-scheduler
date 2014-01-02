@@ -2,7 +2,7 @@
 //  network_generator.h
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #ifndef REAL_TIME_SCHEDULER_NETWORK_GENERATOR_H_

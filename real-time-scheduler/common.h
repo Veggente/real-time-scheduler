@@ -2,7 +2,7 @@
 //  common.h
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #ifndef REAL_TIME_SCHEDULER_COMMON_H_
@@ -18,6 +18,8 @@ enum Policy {
     LDF,  // largest-deficit-first
     EDF,  // earliest-deadline-first
     SDBF,  // shortest-delay-bound-first
+    EDF_NAIVE,  // deficit-unaware EDF
+    SDBF_NAIVE,  // deficit-unaware SDBF
     POLICY_COUNT
 };
 

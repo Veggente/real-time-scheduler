@@ -2,7 +2,7 @@
 //  simulator.cpp
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #include "./simulator.h"
@@ -44,7 +44,8 @@ Simulator::Simulator() {
     rng_seed_ = 0;
 }
 
-void Simulator::init(const std::string &config_filename, const std::string &network_filename, std::mt19937 &rng) {
+void Simulator::init(const std::string &config_filename,
+                     const std::string &network_filename, std::mt19937 &rng) {
     std::ifstream in(config_filename);
     if (!in) {
         cannot_open_file(config_filename);
@@ -423,8 +424,14 @@ void Simulator::save_stability_ratios(const std::string &stability_filename) {
 }
 
 BooleanVector int_to_bool_vec(int a) {  // TODO(Veggente): generalized case
-    BooleanVector indicator(3, false);
-    if (a > 3) {
+    BooleanVector indicator(POLICY_COUNT, false);
+    if (a%32 > 15) {
+        indicator[4] = true;
+    }
+    if (a%16 > 7) {
+        indicator[3] = true;
+    }
+    if (a%8 > 3) {
         indicator[2] = true;
     }
     if (a%4 > 1) {

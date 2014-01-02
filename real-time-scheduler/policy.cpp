@@ -2,7 +2,7 @@
 //  policy.cpp
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #include "./policy.h"
@@ -140,6 +140,27 @@ BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
     }
     return greedy(available_queues(queues_delay_bound_heap), priority,
                   maximal_schedule_matrix, rng);
+}
+
+BooleanVector edf_naive(const Queues &queues_deadline_heap,
+                        const BooleanMatrix &maximal_schedule_matrix,
+                        int current_time, std::mt19937 &rng) {
+    int network_size = static_cast<int>(queues_deadline_heap.size());
+    Counters all_one_deficits(network_size, 1);
+    int zero_max_delay_bound = 0;
+    return edf(queues_deadline_heap, all_one_deficits,
+               maximal_schedule_matrix, current_time,
+               zero_max_delay_bound, rng);
+}
+
+BooleanVector sdbf_naive(const Queues &queues_deadline_heap,
+                         const BooleanMatrix &maximal_schedule_matrix,
+                         std::mt19937 &rng) {
+    int network_size = static_cast<int>(queues_deadline_heap.size());
+    Counters all_one_deficits(network_size, 1);
+    int zero_max_delay_bound = 0;
+    return sdbf(queues_deadline_heap, all_one_deficits, maximal_schedule_matrix,
+                zero_max_delay_bound, rng);
 }
 
 bool comp_pairs(const IndexPair &p1, const IndexPair &p2) {

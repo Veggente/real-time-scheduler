@@ -2,7 +2,7 @@
 //  simulator.h
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #ifndef REAL_TIME_SCHEDULER_SIMULATOR_H_
@@ -16,7 +16,8 @@
 class Simulator {
 public:  // NOLINT
     Simulator();  // zero-initialization
-    void init(const std::string &config_filename, const std::string &network_filename, std::mt19937 &rng);
+    void init(const std::string &config_filename,
+              const std::string &network_filename, std::mt19937 &rng);
     void save_config();  // save network config for all queueing systems
     void arrive(std::mt19937 &rng);  // NOLINT
     void depart(std::mt19937 &rng);  // NOLINT

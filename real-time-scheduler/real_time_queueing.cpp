@@ -2,7 +2,7 @@
 //  real_time_queueing.cpp
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #include "./real_time_queueing.h"
@@ -33,7 +33,8 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
     PacketSet empty_packet_set;
     per_link_queue_.insert(per_link_queue_.begin(), network_size(),
                            empty_packet_set);
-    if (scheduler() == SDBF) {  // TODO(Veggente): customizable tie-breakers
+    if ( (scheduler() == SDBF) || (scheduler() == SDBF_NAIVE) ) {
+            // TODO(Veggente): customizable tie-breakers
         intra_link_tie_breaker_ = DELAY_BOUND;
     } else {
         intra_link_tie_breaker_ = DEADLINE;
@@ -84,6 +85,13 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
             scheduled_links = sdbf(per_link_queue(), per_link_deficit(),
                                    maximal_schedule_matrix(), max_delay_bound(),
                                    rng);
+        } else if (scheduler() == EDF_NAIVE) {
+            scheduled_links = edf_naive(per_link_queue(),
+                                        maximal_schedule_matrix(),
+                                        system_clock(), rng);
+        } else if (scheduler() == SDBF_NAIVE) {
+            scheduled_links = sdbf_naive(per_link_queue(),
+                                         maximal_schedule_matrix(), rng);
         } else {
             // TODO(Veggente): should not happen
         }

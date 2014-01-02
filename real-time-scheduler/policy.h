@@ -2,7 +2,7 @@
 //  policy.h
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #ifndef REAL_TIME_SCHEDULER_POLICY_H_
@@ -32,5 +32,13 @@ BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
                    const Counters &deficits,
                    const BooleanMatrix &maximal_schedule_matrix,
                    int max_delay_bound, std::mt19937 &rng);
+
+BooleanVector edf_naive(const Queues &queues_deadline_heap,
+                        const BooleanMatrix &maximal_schedule_matrix,
+                        int current_time, std::mt19937 &rng);
+
+BooleanVector sdbf_naive(const Queues &queues_deadline_heap,
+                         const BooleanMatrix &maximal_schedule_matrix,
+                         std::mt19937 &rng);
 
 #endif  // REAL_TIME_SCHEDULER_POLICY_H_

@@ -2,7 +2,7 @@
 //  enum_parser.h
 //  real-time-scheduler
 //
-//  Copyright (c) 2013 Xiaohan Kang. All rights reserved.
+//  Copyright (c) 2013-2014 Xiaohan Kang. All rights reserved.
 //
 
 #ifndef REAL_TIME_SCHEDULER_ENUM_PARSER_H_
@@ -51,9 +51,13 @@ EnumParser<Policy>::EnumParser() {
     enum_to_string_[LDF] = "ldf";
     enum_to_string_[EDF] = "edf";
     enum_to_string_[SDBF] = "sdbf";
+    enum_to_string_[EDF_NAIVE] = "edf-naive";
+    enum_to_string_[SDBF_NAIVE] = "sdbf-naive";
     string_to_enum_["ldf"] = LDF;
     string_to_enum_["edf"] = EDF;
     string_to_enum_["sdbf"] = SDBF;
+    string_to_enum_["edf-naive"] = EDF_NAIVE;
+    string_to_enum_["sdbf-naive"] = SDBF_NAIVE;
 }
 
 template<>

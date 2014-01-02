@@ -160,10 +160,10 @@ void Simulator::init(const std::string &config_filename,
     }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     base_qos_.clear();
+    double base_qos_type_1, base_qos_type_2;
     if (network_type_ == UNIT_DISK) {
 //        base_qos_ = Ratios(network_size_, 1);
             // ignore the input file and set all base QoS to 1
-        double base_qos_type_1, base_qos_type_2;
         in >> base_qos_type_1 >> base_qos_type_2;
         std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
         for (int i = 0; i < network_size_; ++i) {
@@ -225,8 +225,22 @@ void Simulator::init(const std::string &config_filename,
                     NETWORK_TYPE_ID_LEN)+std::to_string(network_size_)+"-it"
                     +std::to_string(num_iterations_)+"-"
                     +parser_pol.enum_to_string(static_cast<Policy>(policy_it))
-                    +"-b"+std::to_string(bandwidth_[bandwidth_it])+"-r"
-                    +ostr.str()+".txt";
+                    +"-b"+std::to_string(bandwidth_[bandwidth_it]);
+                if (network_type_ == UNIT_DISK) {
+                    std::ostringstream ostr_x;
+                    ostr_x << base_qos_type_1;
+                    std::ostringstream ostr_y;
+                    ostr_y << base_qos_type_2;
+                    temp_name.append("-x"+ostr_x.str()+"-y"+ostr_y.str());
+                }
+                temp_name.append("-r"+ostr.str()+".txt");
+//                std::string temp_name =
+//                    parser_net.enum_to_string(network_type_).substr(0,
+//                    NETWORK_TYPE_ID_LEN)+std::to_string(network_size_)+"-it"
+//                    +std::to_string(num_iterations_)+"-"
+//                    +parser_pol.enum_to_string(static_cast<Policy>(policy_it))
+//                    +"-b"+std::to_string(bandwidth_[bandwidth_it])+"-r"
+//                    +ostr.str()+".txt";
                 QueueingSystem temp_system(maximal_schedule_matrix_,
                                            static_cast<Policy>(policy_it),
                                            scaled_qos, bandwidth_[bandwidth_it],

@@ -161,8 +161,18 @@ void Simulator::init(const std::string &config_filename,
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     base_qos_.clear();
     if (network_type_ == UNIT_DISK) {
-        base_qos_ = Ratios(network_size_, 1);
+//        base_qos_ = Ratios(network_size_, 1);
             // ignore the input file and set all base QoS to 1
+        double base_qos_type_1, base_qos_type_2;
+        in >> base_qos_type_1 >> base_qos_type_2;
+        std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
+        for (int i = 0; i < network_size_; ++i) {
+            if (type_indicator[i]) {
+                base_qos_.push_back(base_qos_type_1);
+            } else {
+                base_qos_.push_back(base_qos_type_2);
+            }
+        }
     } else {
         for (int i = 0; i < network_size_; ++i) {
             double temp;

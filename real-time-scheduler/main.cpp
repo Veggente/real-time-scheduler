@@ -15,14 +15,19 @@ int main(int argc, const char * argv[]) {
     std::string stability_file(argv[3]);
     std::mt19937 rng;
     Simulator simulator;
-    simulator.init(input_file, network_file, rng);
-    simulator.save_config();
+    bool save_config_and_deficit = simulator.init(input_file, network_file,
+                                                  rng);
+    if (save_config_and_deficit) {
+        simulator.save_config();
+    }
     for (int time_slot = 0; time_slot < simulator.num_iterations();
          ++time_slot) {
         simulator.arrive(rng);
         simulator.depart(rng);
         simulator.update_stability_counter();
-        simulator.save_deficits();
+        if (save_config_and_deficit) {
+            simulator.save_deficits();
+        }
         simulator.progress_bar();
         simulator.clock_tick();
     }

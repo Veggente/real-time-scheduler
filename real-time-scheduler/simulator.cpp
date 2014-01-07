@@ -45,7 +45,7 @@ Simulator::Simulator() {
     rng_seed_ = 0;
 }
 
-void Simulator::init(const std::string &config_filename,
+bool Simulator::init(const std::string &config_filename,
                      const std::string &network_filename, std::mt19937 &rng) {
     std::ifstream in(config_filename);
     if (!in) {
@@ -184,8 +184,6 @@ void Simulator::init(const std::string &config_filename,
     base_qos_.clear();
     double base_qos_type_1, base_qos_type_2;
     if (network_type_ == UNIT_DISK) {
-//        base_qos_ = Ratios(network_size_, 1);
-            // ignore the input file and set all base QoS to 1
         in >> base_qos_type_1 >> base_qos_type_2;
         std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
         for (int i = 0; i < network_size_; ++i) {
@@ -227,6 +225,9 @@ void Simulator::init(const std::string &config_filename,
         rng_seed_ = static_cast<unsigned int>(std::time(NULL));
         rng.seed(rng_seed_);
     }
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    bool save_config_and_deficit = true;
+    in >> save_config_and_deficit;
     in.close();
     queueing_system_.clear();
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
@@ -256,13 +257,6 @@ void Simulator::init(const std::string &config_filename,
                     temp_name.append("-x"+ostr_x.str()+"-y"+ostr_y.str());
                 }
                 temp_name.append("-r"+ostr.str()+".txt");
-//                std::string temp_name =
-//                    parser_net.enum_to_string(network_type_).substr(0,
-//                    NETWORK_TYPE_ID_LEN)+std::to_string(network_size_)+"-it"
-//                    +std::to_string(num_iterations_)+"-"
-//                    +parser_pol.enum_to_string(static_cast<Policy>(policy_it))
-//                    +"-b"+std::to_string(bandwidth_[bandwidth_it])+"-r"
-//                    +ostr.str()+".txt";
                 QueueingSystem temp_system(maximal_schedule_matrix_,
                                            static_cast<Policy>(policy_it),
                                            scaled_qos, bandwidth_[bandwidth_it],
@@ -275,6 +269,7 @@ void Simulator::init(const std::string &config_filename,
         queueing_system_.push_back(temp_system_matrix);
     }
     system_clock_ = 0;
+    return save_config_and_deficit;
 }
 
 void Simulator::save_config() {
@@ -314,17 +309,6 @@ void Simulator::save_config() {
                 out << "Bandwidth: " << bandwidth_[bandwidth_it] << std::endl;
                 EnumParser<ArrivalDistribution> parser_arr;
                 out << "Max arrival: " << max_packet_ << std::endl;
-//                out << "Arrival distribution for link 1: "
-//                    << parser_arr.enum_to_string(arrival_dist_) << "(";
-//                if (arrival_dist_ == UNIFORM_PACKET) {
-//                    out << min_packet_[0] << ", " << max_packet_[0];
-//                } else if (arrival_dist_ == BINOMIAL_PACKET) {
-//                    out << max_packet_[0] << ", " << binom_param_[0];
-//                }
-//                out << ")" << std::endl;
-//                out << "Delay bound distribution for link 1: uniform("
-//                    << min_delay_bound_[0]
-//                    << ", " << max_delay_bound_[0] << ")" << std::endl;
                 out << "Base QoS: " << base_qos_ << std::endl;
                 out << "QoS scalar: " << qos_ratio_[ratio_it] << std::endl;
                 out << "Number of iterations: " << num_iterations_ << std::endl;
@@ -449,29 +433,29 @@ void Simulator::update_stability_counter() {
 }
 
 void Simulator::save_stability_ratios(const std::string &stability_filename) {
-    std::ofstream out(stability_filename);
-    if (!out) {
-        cannot_open_file(stability_filename);
-    }
-    out << "Bandwidths: " << bandwidth_ << std::endl;
-    for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
-        if (!policy_indicator_[policy_it]) {
-            continue;
-        }
+    for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
+         ++bandwidth_it) {
         EnumParser<Policy> parser_pol;
-        out << parser_pol.enum_to_string(static_cast<Policy>(policy_it))
-            << ":" << std::endl;
-        for (int bandwidth_it = 0; bandwidth_it < bandwidth_.size();
-             ++bandwidth_it) {
+        for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
+            if (!policy_indicator_[policy_it]) {
+                continue;
+            }
+            std::string filename = stability_filename+"-"
+                +parser_pol.enum_to_string(static_cast<Policy>(policy_it))+"-b"
+                +std::to_string(bandwidth_[bandwidth_it])+".txt";
+            std::ofstream out(filename, std::ios_base::app);
+            if (!out) {
+                cannot_open_file(filename);
+            }
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
                 auto &this_system =
                     queueing_system_[policy_it][bandwidth_it][ratio_it];
                 out << num_iterations() << " " << qos_ratio_[ratio_it] << " "
                     << this_system.stability_ratio() << std::endl;
             }
+            out.close();
         }
     }
-    out.close();
 }
 
 BooleanVector int_to_bool_vec(int a) {  // TODO(Veggente): generalized case

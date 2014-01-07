@@ -16,7 +16,7 @@
 class Simulator {
 public:  // NOLINT
     Simulator();  // zero-initialization
-    void init(const std::string &config_filename,
+    bool init(const std::string &config_filename,
               const std::string &network_filename, std::mt19937 &rng);
     void save_config();  // save network config for all queueing systems
     void arrive(std::mt19937 &rng);  // NOLINT

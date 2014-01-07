@@ -72,6 +72,7 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                       cmp_deadline);
         }  // for RANDOM no tie-breaker is specified, so no heap is made
     }
+    Counters per_link_deficit_updated = per_link_deficit();
     for (int sub_time_slot = 0; sub_time_slot < bandwidth(); ++sub_time_slot) {
         BooleanVector scheduled_links(network_size(), false);
         if (scheduler() == LDF) {
@@ -106,12 +107,14 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                              per_link_queue_[i].end(), cmp_delay_bound);
                 }
                 per_link_queue_[i].pop_back();
-                if (per_link_deficit()[i] > 0) {
-                    per_link_deficit_[i] -= 1;  // deficit decreases
+                if (per_link_deficit_updated[i] > 0) {
+                    per_link_deficit_updated[i] -= 1;  // updated deficit
+                                                        // decreases
                 }
             }
         }
     }
+    per_link_deficit_ = per_link_deficit_updated;
 }
 
 void QueueingSystem::clock_tick() {

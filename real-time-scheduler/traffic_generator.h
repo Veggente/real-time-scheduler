@@ -24,6 +24,11 @@ Traffic generate_binomial_traffic(int network_size, int current_time,
                                   IntegerVector max_delay_bound,
                                   std::mt19937 &rng);  // NOLINT
 
-
+Traffic generate_bernoulli_traffic(int network_size, int current_time,
+                                   IntegerVector min_packet,
+                                   IntegerVector max_packet, Ratios bern_param,
+                                   IntegerVector min_delay_bound,
+                                   IntegerVector max_delay_bound,
+                                   std::mt19937 &rng);
 
 #endif  // REAL_TIME_SCHEDULER_TRAFFIC_GENERATOR_H_

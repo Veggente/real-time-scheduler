@@ -41,6 +41,7 @@ enum NetworkType {
 enum ArrivalDistribution {
     UNIFORM_PACKET,
     BINOMIAL_PACKET,
+    BERNOULLI_PACKET,
     ARRIVAL_DIST_COUNT
 };
 

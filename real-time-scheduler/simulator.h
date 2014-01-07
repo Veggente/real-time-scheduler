@@ -33,9 +33,10 @@ private:  // NOLINT
     int interference_radius_;  // of the conflict graph
     BooleanMatrix maximal_schedule_matrix_;
     ArrivalDistribution arrival_dist_;
-    IntegerVector min_packet_;  // only for uniform arrival
+    IntegerVector min_packet_;  // only for uniform and Bernoulli arrival
     IntegerVector max_packet_;
     Ratios binom_param_;  // only for binomial arrival
+    Ratios bern_param_;  // only for Bernoulli arrival
     IntegerVector min_delay_bound_;
     IntegerVector max_delay_bound_;
     Ratios base_qos_;

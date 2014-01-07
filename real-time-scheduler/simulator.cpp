@@ -32,6 +32,7 @@ Simulator::Simulator() {
     min_packet_ = IntegerVector(network_size_, 0);
     max_packet_ = IntegerVector(network_size_, 0);
     binom_param_ = Ratios(network_size_, 0);
+    bern_param_ = Ratios(network_type_, 0);
     min_delay_bound_ = IntegerVector(network_size_, 0);
     max_delay_bound_ = IntegerVector(network_size_, 0);
     base_qos_ = Ratios(network_size_, 0);
@@ -121,6 +122,27 @@ void Simulator::init(const std::string &config_filename,
                     max_packet_.push_back(max_packet_type_1);
                 } else {
                     max_packet_.push_back(max_packet_type_2);
+                }
+            }
+            break;
+        }
+        case BERNOULLI_PACKET:
+        {
+            int min_packet_type_1, min_packet_type_2, max_packet_type_1,
+                max_packet_type_2;
+            double bern_param_type_1, bern_param_type_2;
+            in >> min_packet_type_1 >> max_packet_type_1 >> bern_param_type_1
+               >> min_packet_type_2 >> max_packet_type_2 >> bern_param_type_2;
+            std::shuffle(type_indicator.begin(), type_indicator.end(), rng);
+            for (int i = 0; i < network_size_; ++i) {
+                if (type_indicator[i]) {
+                    min_packet_.push_back(min_packet_type_1);
+                    max_packet_.push_back(max_packet_type_1);
+                    bern_param_.push_back(bern_param_type_1);
+                } else {
+                    min_packet_.push_back(min_packet_type_2);
+                    max_packet_.push_back(max_packet_type_2);
+                    bern_param_.push_back(bern_param_type_2);
                 }
             }
             break;
@@ -327,6 +349,11 @@ void Simulator::arrive(std::mt19937 &rng) {  // NOLINT
                                            min_packet_, max_packet_,
                                            min_delay_bound_, max_delay_bound_,
                                            rng);
+    } else if (arrival_dist_ == BERNOULLI_PACKET) {
+        traffic = generate_bernoulli_traffic(network_size_, system_clock_,
+                                             min_packet_, max_packet_,
+                                             bern_param_, min_delay_bound_,
+                                             max_delay_bound_, rng);
     } else {
         std::cerr << "Error: arrival distribution not recognized!" << std::endl;
         exit(1);

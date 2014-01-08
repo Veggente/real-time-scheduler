@@ -59,7 +59,7 @@ BooleanVector greedy(const BooleanVector &availability,
             new_survivor.clear();
             new_survivor.assign(survivor.begin(), survivor.end());
             // copy survivor to new_survivor
-            IntegerVector::const_iterator it = new_survivor.begin();
+            IntegerVector::iterator it = new_survivor.begin();
             while (it != new_survivor.end()) {  // find compatible schedules
                 if ( !( (maximal_schedule_matrix[*it])[rit->second] ) ) {
                     new_survivor.erase(it);

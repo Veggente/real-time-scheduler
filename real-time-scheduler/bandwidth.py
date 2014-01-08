@@ -29,3 +29,16 @@ def read_stability_ratio(input_file):
     new_ratio = float(f.read().split()[-1])
     f.close()
     return new_ratio
+
+def word_reader(filename, row, column, num_indicator):
+    import os
+    f = open(filename)
+    return_string = "";
+    for i, line in enumerate(f):
+        if i == row-1:
+            return_string = line.split()[column-1]
+    f.close()
+    if num_indicator:
+        return float(return_string)
+    else:
+        return return_string

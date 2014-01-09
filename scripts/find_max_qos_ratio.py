@@ -3,11 +3,11 @@ import bandwidth
 import os
 
 # parameters to vary
-qos_ratio = 0.15 # initial ratio
+qos_ratio = 0.5 # initial ratio
 max_trial = 20 # maximum number of trials before terminating
 qos_step = 0.001 # step size
-policy_indicator = 1
-bw = 8 # bandwidth
+policy_indicator = 4
+bw = 4 # bandwidth
 num_iterations = 1000 # number of iterations
 save_config_and_deficit = 0 # save data or not
 

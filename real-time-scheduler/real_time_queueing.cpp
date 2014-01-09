@@ -11,7 +11,7 @@
 #include <fstream>  // NOLINT
 #include <string>
 #include <numeric>
-#include "/usr/local/include/prettyprint.hpp"
+#include "./prettyprint.hpp"
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
                          std::mt19937 &rng);

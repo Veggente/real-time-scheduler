@@ -18,7 +18,7 @@
 #include "./network_generator.h"
 #include "./traffic_generator.h"
 #include "./real_time_queueing.h"
-#include "/usr/local/include/prettyprint.hpp"
+#include "./prettyprint.hpp"
 #include "./enum_parser.h"
 
 BooleanVector int_to_bool_vec(int a);  // TODO(Veggente): generalized case

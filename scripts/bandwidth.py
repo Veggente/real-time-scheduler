@@ -73,3 +73,8 @@ def bisection_adjust(last_correct_value, this_value, step_size, min_value, max_v
         return round((last_correct_value-this_value)/2.0/step_size)*step_size+this_value
     else:
         return this_value-round((this_value-last_correct_value)/2.0/step_size)*step_size
+
+def my_range(start, end, step):
+    while start <= end:
+        yield start
+        start += step

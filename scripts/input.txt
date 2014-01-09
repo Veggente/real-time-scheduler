@@ -1,0 +1,13 @@
+Network type: unit-disk
+Topological parameters: 2
+Arrival distribution: bernoulli
+Arrival parameters: 1 10 0.5 1 10 0.5
+Min delay bound: 1 1
+Max delay bound: 1 1
+Bandwidths: 78 79 80 81
+Base QoS: 1 1
+Ratios of QoS: 0.995
+Number of iterations: 100000
+Policy indicator: 1
+Timed seed: 1
+Save config and deficits: 1

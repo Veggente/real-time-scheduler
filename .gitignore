@@ -169,3 +169,4 @@ real-time-scheduler.xcodeproj/
 real-time-scheduler/real-time-scheduler
 test_data/
 *.pyc
+scripts/real-time-scheduler

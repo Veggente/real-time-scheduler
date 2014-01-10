@@ -170,3 +170,4 @@ real-time-scheduler/real-time-scheduler
 test_data/
 *.pyc
 scripts/real-time-scheduler
+qos*/

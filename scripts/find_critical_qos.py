@@ -114,4 +114,3 @@ def calculate_progress(bw, bw_begin, bw_end, bw_step, trial, max_trial):
 
 if __name__ == "__main__":
     main()
-

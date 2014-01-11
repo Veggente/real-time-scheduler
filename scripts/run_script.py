@@ -3,8 +3,8 @@ import os
 import sys
 
 def main():
-    qos_x = [0, 0.32, 0.73, 1, 1, 1]
-    qos_y = [1, 1, 1, 0.73, 0.32, 0]
+    qos_x = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
+    qos_y = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
     qos_len = len(qos_x)
     delays = [1, 2, 4, 8]
     policy = sys.argv[1]

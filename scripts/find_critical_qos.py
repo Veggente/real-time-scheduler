@@ -102,7 +102,7 @@ def main():
             else:
                 last_large = qos_ratio
                 qos_ratio = bandwidth.bisection_adjust(last_small, qos_ratio, qos_step, min_ratio, max_ratio)
-            print "Iteration "+str(trial+1)+"/"+str(max_trial)+" completed! (Total: )"+to_percentage(calculate_progress(bw, bw_begin, bw_end, bw_step, trial, max_trial))
+            print "Iteration "+str(trial+1)+"/"+str(max_trial)+" completed! (Total: "+to_percentage(calculate_progress(bw, bw_begin, bw_end, bw_step, trial, max_trial))+")"
 
 def to_percentage(a):
     return str(float(int(round(1000*a)))/10)+"%"

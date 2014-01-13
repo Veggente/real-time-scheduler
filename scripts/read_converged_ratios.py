@@ -2,9 +2,9 @@
 import bandwidth
 import sys, getopt
 
-def main():
+def main(argv):
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "p:d:")
+        opts, args = getopt.getopt(argv[1:], "bp:d:")
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
@@ -16,6 +16,7 @@ def main():
     bw_start = 1 # int(float(sys.argv[5]))
     bw_end = 1 # int(float(sys.argv[6]))
     bw_step = 1 # int(float(sys.argv[7]))
+    qos_bandwidth_plot = False # default is QoS stability region plot
     for o, a in opts:
         if o == "-p":
             policy = a
@@ -31,6 +32,8 @@ def main():
 #            bw_end = int(float(a))
 #        elif o == "-s":
 #            bw_step = int(float(a))
+        elif o == "-b":
+            qos_bandwidth_plot = True # QoS bandwidth function plot
         else:
             assert False, "unhandled option"
 #    print "The critical QoS ratios for policy "+policy+", base QoS ("+x+", "+y+"), delay bound "+delay_bound+", bandwidths "+str(bw_start)+":"+str(bw_step)+":"+str(bw_end)+" are"
@@ -51,6 +54,12 @@ def main():
     bw_start = 24
     bw_end = 72
     bw_step = 24
+    if qos_bandwidth_plot:
+        x_list = [1]
+        y_list = [1]
+        bw_start = 8
+        bw_end = 80
+        bw_step = 8
 #    print '; '.join(map(str, read_policy_for_all_directions(policy, x_list, y_list, delay_bound, bw_start, bw_end, bw_step)))
     print_list_on_different_lines(read_policy_for_all_directions(policy, x_list, y_list, delay_bound, bw_start, bw_end, bw_step))
 
@@ -78,4 +87,4 @@ def print_list_on_single_line(a_list):
     print prints
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

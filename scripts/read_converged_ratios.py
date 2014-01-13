@@ -46,8 +46,8 @@ def main():
 #        f = open(stability_file)
 #        print f.read().split()[-1]
 #        f.close()
-    x_list = [0, 1, 1]
-    y_list = [1, 1, 0]
+    x_list = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
+    y_list = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
     bw_start = 24
     bw_end = 72
     bw_step = 24
@@ -70,7 +70,12 @@ def read_policy_for_all_directions(policy, x_list, y_list, delay_bound, bw_start
     return a_double_list
 def print_list_on_different_lines(a_list):
     for element in a_list:
-        print element
+        print_list_on_single_line(element)
+def print_list_on_single_line(a_list):
+    prints = []
+    for element in a_list:
+        prints.append(element)
+    print prints
 
 if __name__ == "__main__":
     main()

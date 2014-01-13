@@ -4,7 +4,7 @@ import sys, getopt
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], "bp:d:")
+        opts, args = getopt.getopt(argv, "bp:d:")
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"

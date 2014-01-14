@@ -55,13 +55,9 @@ def main():
             assert False, "unhandled option"
 
     # other parameters
-    #    qos_ratio = 0.5 # initial ratio
     bw = 50 # initial bandwidth
     max_trial = 20 # maximum number of trials before terminating
-    #    qos_step = 0.0001 # step size
     num_iterations = 20000 # number of iterations
-#    min_ratio = 0.0
-#    max_ratio = 1.0
     network_file = "network-5.txt"
     stability_file_prefix = "stability"
     time_seed = 1

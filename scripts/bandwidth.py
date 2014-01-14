@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python
 def change_qos_ratio( new_ratio ):
     import os
     input_file = "input.txt"

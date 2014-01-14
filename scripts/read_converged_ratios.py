@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python
 import bandwidth
 import sys, getopt
 

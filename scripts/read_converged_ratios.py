@@ -59,7 +59,7 @@ def main(argv):
     bw_end = 72
     bw_step = 24
     if mode == 2: # critical bandwidth data
-        max_arrivals = [2, 4, 6, 8, 10]
+        max_arrivals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         count = 10
         critical_bandwidths = [read_critical_bandwidth(x, y, delay_bound, policy, max_arrival, count) for max_arrival in max_arrivals]
         print critical_bandwidths

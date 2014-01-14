@@ -74,6 +74,19 @@ def bisection_adjust(last_correct_value, this_value, step_size, min_value, max_v
     else:
         return this_value-round((this_value-last_correct_value)/2.0/step_size)*step_size
 
+def bisection_adjust_int(last_correct_value, this_value, step_size, min_value, max_value):
+    import math
+    import random
+    if math.fabs(last_correct_value-this_value) <= step_size:
+        if random.random() > 0.5:
+            return min(this_value+step_size, max_value)
+        else:
+            return max(this_value-step_size, min_value)
+    elif last_correct_value > this_value:
+        return (last_correct_value-this_value)/2/step_size*step_size+this_value
+    else:
+        return this_value-(this_value-last_correct_value)/2/step_size*step_size
+
 def my_range(start, end, step):
     while start <= end:
         yield start

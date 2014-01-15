@@ -113,10 +113,10 @@ def main():
             cdin = Chdir("../../../")
             if stability_ratio < 1.5:
                 last_large = bw
-                bw = bandwidth.bisection_adjust_int(last_small, bw, 1, bw_lower, bw_upper)
+                bw = bandwidth.bisection_adjust_int(last_small, bw, 1, bw_lower, bw_upper, stability_ratio)
             else:
                 last_small = bw
-                bw = bandwidth.bisection_adjust_int(last_large, bw, 1, bw_lower, bw_upper)
+                bw = bandwidth.bisection_adjust_int(last_large, bw, 1, bw_lower, bw_upper, stability_ratio)
             print "Iteration "+str(trial+1)+"/"+str(max_trial)+" completed! (Total: "+to_percentage(calculate_progress(max_arrival, max_arr_begin, max_arr_end, max_arr_step, trial, max_trial))+")"
 
 def to_percentage(a):

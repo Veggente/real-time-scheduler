@@ -55,7 +55,7 @@ def main():
             assert False, "unhandled option"
 
     # other parameters
-    bw = 50 # initial bandwidth
+    bw_initial = 50 # initial bandwidth
     max_trial = 20 # maximum number of trials before terminating
     num_iterations = 20000 # number of iterations
     network_file = "network-5.txt"
@@ -90,6 +90,7 @@ def main():
     bandwidth.word_writer(input_file, 10, 4, num_iterations) # set number of iterations
     bandwidth.word_writer(input_file, 9, 4, 1) # set qos ratio
     for max_arrival in bandwidth.my_range(max_arr_begin, max_arr_end, max_arr_step): # for bandwidth loop
+        bw = bw_initial
         bandwidth.word_writer(input_file, 4, 4, max_arrival)
         bandwidth.word_writer(input_file, 4, 7, max_arrival) # set max arrival
         stability_file = stability_file_prefix+"-"+policy+"-m"+str(max_arrival)+".txt" # stability file to write

@@ -49,7 +49,7 @@ def main():
             assert False, "unhandled option"
 
     # other parameters
-    qos_ratio = 0.5 # initial ratio
+    qos_ratio_initial = 0.5 # initial ratio
     max_trial = 20 # maximum number of trials before terminating
     qos_step = 0.0001 # step size
     num_iterations = 20000 # number of iterations
@@ -86,6 +86,7 @@ def main():
     bandwidth.word_writer(input_file, 13, 5, save_config_and_deficit)
     bandwidth.word_writer(input_file, 10, 4, num_iterations) # set number of iterations
     for bw in bandwidth.my_range(bw_begin, bw_end, bw_step): # for bandwidth loop
+        qos_ratio = qos_ratio_initial
         bandwidth.word_writer(input_file, 7, 2, bw) # set bandwidth
         stability_file = stability_file_prefix+"-"+policy+"-b"+str(bw)+".txt"
         last_small = min_ratio

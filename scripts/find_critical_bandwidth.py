@@ -96,6 +96,7 @@ def main():
         stability_file = stability_file_prefix+"-"+policy+"-m"+str(max_arrival)+".txt" # stability file to write
         last_small = bw_lower
         last_large = bw_upper
+        last_bw = bw_lower
         for trial in range(0, max_trial):
             bandwidth.word_writer(input_file, 7, 2, bw) # set bandwidth
             cdin = Chdir(directory)
@@ -112,11 +113,21 @@ def main():
                 myfile.write(str(bw)+" "+str(stability_ratio)+"\n")
             cdin = Chdir("../../../")
             if stability_ratio < 1.5:
-                last_large = bw
-                bw = bandwidth.bisection_adjust_int(last_small, bw, 1, bw_lower, bw_upper, stability_ratio)
+                if last_bw == bw-1 or last_bw == bw+1 or last_bw == bw: # second stage: only step up/down
+                    last_bw = bw
+                    bw -= 1
+                else: # first stage: bisection
+                    last_large = bw
+                    last_bw = bw
+                    bw = bandwidth.bisection_adjust_int(last_small, bw, 1, bw_lower, bw_upper, stability_ratio)
             else:
-                last_small = bw
-                bw = bandwidth.bisection_adjust_int(last_large, bw, 1, bw_lower, bw_upper, stability_ratio)
+                if last_bw == bw-1 or last_bw == bw+1 or last_bw == bw:
+                    last_bw = bw
+                    bw += 1
+                else:
+                    last_small = bw
+                    last_bw = bw
+                    bw = bandwidth.bisection_adjust_int(last_large, bw, 1, bw_lower, bw_upper, stability_ratio)
             print "Iteration "+str(trial+1)+"/"+str(max_trial)+" completed! (Total: "+to_percentage(calculate_progress(max_arrival, max_arr_begin, max_arr_end, max_arr_step, trial, max_trial))+")"
 
 def to_percentage(a):

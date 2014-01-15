@@ -4,7 +4,7 @@ Arrival distribution: bernoulli
 Arrival parameters: 1 10 0.5 1 10 0.5
 Min delay bound: 1 1
 Max delay bound: 1 1
-Bandwidths: 8
+Bandwidths: 40
 Base QoS: 1 1
 Ratios of QoS: 0.155
 Number of iterations: 10000

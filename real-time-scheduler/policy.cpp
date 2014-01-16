@@ -163,6 +163,12 @@ BooleanVector sdbf_naive(const Queues &queues_deadline_heap,
                 zero_max_delay_bound, rng);
 }
 
+BooleanVector maximal(const Queues &queues_deadline_heap, const BooleanMatrix &maximal_schedule_matrix, std::mt19937 &rng) {
+    int network_size = static_cast<int>(queues_deadline_heap.size());
+    Counters all_zero_priority(network_size, 0);
+    return greedy(available_queues(queues_deadline_heap), all_zero_priority, maximal_schedule_matrix, rng);
+}
+
 bool comp_pairs(const IndexPair &p1, const IndexPair &p2) {
         // for random tie-breaking in greedy()
     return (p1.first < p2.first);

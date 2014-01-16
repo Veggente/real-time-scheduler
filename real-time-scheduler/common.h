@@ -20,6 +20,7 @@ enum Policy {
     SDBF,  // shortest-delay-bound-first
     EDF_NAIVE,  // deficit-unaware EDF
     SDBF_NAIVE,  // deficit-unaware SDBF
+    MAXIMAL,  // random maximal
     POLICY_COUNT
 };
 

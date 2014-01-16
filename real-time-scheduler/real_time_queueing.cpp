@@ -93,6 +93,8 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
         } else if (scheduler() == SDBF_NAIVE) {
             scheduled_links = sdbf_naive(per_link_queue(),
                                          maximal_schedule_matrix(), rng);
+        } else if (scheduler() == MAXIMAL) {
+            scheduled_links = maximal(per_link_queue(), maximal_schedule_matrix(), rng);
         } else {
             // TODO(Veggente): should not happen
         }

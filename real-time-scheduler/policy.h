@@ -41,4 +41,6 @@ BooleanVector sdbf_naive(const Queues &queues_deadline_heap,
                          const BooleanMatrix &maximal_schedule_matrix,
                          std::mt19937 &rng);
 
+BooleanVector maximal(const Queues &queues_deadline_heap, const BooleanMatrix &maximal_schedule_matrix, std::mt19937 &rng);
+
 #endif  // REAL_TIME_SCHEDULER_POLICY_H_

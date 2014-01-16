@@ -460,20 +460,23 @@ void Simulator::save_stability_ratios(const std::string &stability_filename) {
 
 BooleanVector int_to_bool_vec(int a) {  // TODO(Veggente): generalized case
     BooleanVector indicator(POLICY_COUNT, false);
+    if (a%64 > 31) {
+        indicator[5] = true;  // random maximal
+    }
     if (a%32 > 15) {
-        indicator[4] = true;
+        indicator[4] = true;  // SDBF-naive
     }
     if (a%16 > 7) {
-        indicator[3] = true;
+        indicator[3] = true;  // EDF-naive
     }
     if (a%8 > 3) {
-        indicator[2] = true;
+        indicator[2] = true;  // SDBF
     }
     if (a%4 > 1) {
-        indicator[1] = true;
+        indicator[1] = true;  // EDF
     }
     if (a%2 > 0) {
-        indicator[0] = true;
+        indicator[0] = true;  // LDF
     }
     return indicator;
 }

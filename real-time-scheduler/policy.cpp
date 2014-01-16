@@ -15,14 +15,14 @@ bool comp_pairs(const IndexPair &p1, const IndexPair &p2);
 BooleanVector available_queues(const Queues &q);
 
 BooleanVector greedy(const BooleanVector &availability,
-                     const IntegerVector &priority,
+                     const Counters &priority,
                      const BooleanMatrix &maximal_schedule_matrix,
                          // must be maximal
                      std::mt19937 &rng) {
     BooleanVector schedule;
     int network_size = static_cast<int>(availability.size());
-    int min_priority = *std::min_element(priority.begin(), priority.end());
-    IntegerVector available_priority;  // actual priority
+    long min_priority = *std::min_element(priority.begin(), priority.end());
+    Counters available_priority;  // actual priority
     IndexMapping available_priority_map;  // map of indices and priority
     for (int i = 0; i < network_size; ++i) {
         if (availability[i]) {
@@ -97,7 +97,7 @@ BooleanVector edf(const Queues &queues_deadline_heap,
                   const Counters &deficits,
                   const BooleanMatrix &maximal_schedule_matrix,
                   int current_time, int max_delay_bound, std::mt19937 &rng) {
-    IntegerVector priority;
+    Counters priority;
     int network_size = static_cast<int>(queues_deadline_heap.size());
     for (int i = 0; i < network_size; ++i) {
         if (queues_deadline_heap[i].empty()) {
@@ -122,7 +122,7 @@ BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
                    const Counters &deficits,
                    const BooleanMatrix &maximal_schedule_matrix,
                    int max_delay_bound, std::mt19937 &rng) {
-    IntegerVector priority;
+    Counters priority;
     int network_size = static_cast<int>(queues_delay_bound_heap.size());
     for (int i = 0; i < network_size; ++i) {
         if (queues_delay_bound_heap[i].empty()) {

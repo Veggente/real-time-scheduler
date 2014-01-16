@@ -42,6 +42,8 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
     lower_deficit_sum_ = 0;
     upper_deficit_sum_ = 0;
     num_iterations_ = n;
+    per_link_cumulative_throughput_ = Counters(network_size(), 0);
+    per_link_cumulative_arrival_ = Counters(network_size(), 0);
 }
 
 void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
@@ -51,6 +53,7 @@ void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
         per_link_queue_[i].insert(per_link_queue_[i].begin(),
                                   traffic[i].begin(), traffic[i].end());
         per_link_deficit_[i] += deficit_increase[i];
+        per_link_cumulative_arrival_[i] += traffic[i].size();
     }
 }
 
@@ -113,6 +116,7 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                     per_link_deficit_updated[i] -= 1;  // updated deficit
                                                         // decreases
                 }
+                ++per_link_cumulative_throughput_[i];  // throughput counter
             }
         }
     }
@@ -175,6 +179,22 @@ double QueueingSystem::stability_ratio() {
             /(num_iterations_-half_point())/lower_deficit_sum()
             *(half_point()-quarter_point());
     }
+}
+
+long QueueingSystem::sum_cumulative_arrival() {
+    long sum = 0;
+    for (int i = 0; i < network_size(); ++i) {
+        sum += per_link_cumulative_arrival_[i];
+    }
+    return sum;
+}
+
+long QueueingSystem::sum_cumulative_throughput() {
+    long sum = 0;
+    for (int i = 0; i < network_size(); ++i) {
+        sum += per_link_cumulative_throughput_[i];
+    }
+    return sum;
 }
 
 Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,

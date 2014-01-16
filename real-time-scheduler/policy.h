@@ -12,7 +12,7 @@
 #include "./common.h"
 
 BooleanVector greedy(const BooleanVector &availability,
-                     const IntegerVector &priority,
+                     const Counters &priority,
                      const BooleanMatrix &maximal_schedule_matrix,
                          // must be maximal
                      std::mt19937 &rng);

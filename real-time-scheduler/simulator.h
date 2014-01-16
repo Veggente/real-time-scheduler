@@ -48,6 +48,7 @@ private:  // NOLINT
         // per-policy, per-bandwidth, per-qos-ratio systems
     int system_clock_;
     int rng_seed_;
+    bool output_throughput_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_SIMULATOR_H_

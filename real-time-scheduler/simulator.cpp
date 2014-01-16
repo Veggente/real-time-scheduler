@@ -43,6 +43,7 @@ Simulator::Simulator() {
     queueing_system_ = QueueingSystem3D(0);
     system_clock_ = 0;
     rng_seed_ = 0;
+    output_throughput_ = false;
 }
 
 bool Simulator::init(const std::string &config_filename,
@@ -228,6 +229,8 @@ bool Simulator::init(const std::string &config_filename,
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     bool save_config_and_deficit = true;
     in >> save_config_and_deficit;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    in >> output_throughput_;
     in.close();
     queueing_system_.clear();
     for (int policy_it = 0; policy_it < POLICY_COUNT; ++policy_it) {
@@ -451,7 +454,12 @@ void Simulator::save_stability_ratios(const std::string &stability_filename) {
                 auto &this_system =
                     queueing_system_[policy_it][bandwidth_it][ratio_it];
                 out << num_iterations() << " " << qos_ratio_[ratio_it] << " "
-                    << this_system.stability_ratio() << std::endl;
+                    << this_system.stability_ratio();
+                if (output_throughput_) {
+                    out << " " << this_system.sum_cumulative_arrival() << " "
+                        << this_system.sum_cumulative_throughput();
+                }
+                out << std::endl;
             }
             out.close();
         }

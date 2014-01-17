@@ -28,7 +28,7 @@ private:  // NOLINT
 
 class QueueingSystem {
 public:  // NOLINT
-         //TODO(Veggente): unnecessary methods cleanup
+         // TODO(Veggente): unnecessary methods cleanup
     QueueingSystem(const BooleanMatrix &m,
                    Policy s, Ratios q, int b,
                    int d, const std::string &f, int n);
@@ -70,9 +70,9 @@ private:  // NOLINT
     int max_delay_bound_;
     std::string output_filename_;
     double lower_deficit_sum_;  // quarter-to-half deficit sum
-                                //TODO(Veggente): use long instead of double
+                                // TODO(Veggente): use long instead of double
     double upper_deficit_sum_;  // half-to-whole deficit sum
-                                //TODO(Veggente): use long instead of double
+                                // TODO(Veggente): use long instead of double
     int num_iterations_;
     Counters per_link_cumulative_throughput_;
     Counters per_link_cumulative_arrival_;

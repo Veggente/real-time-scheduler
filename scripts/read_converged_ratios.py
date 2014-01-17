@@ -38,6 +38,7 @@ def main(argv):
             mode = int(a) # 0(default): QoS stability region data
                           # 1: QoS--bandwidth data
                           # 2: critical bandwidth data for varying arrial
+                          # 3: throughput
         else:
             assert False, "unhandled option"
 #    print "The critical QoS ratios for policy "+policy+", base QoS ("+x+", "+y+"), delay bound "+delay_bound+", bandwidths "+str(bw_start)+":"+str(bw_step)+":"+str(bw_end)+" are"
@@ -58,7 +59,11 @@ def main(argv):
     bw_start = 24
     bw_end = 72
     bw_step = 24
-    if mode == 2: # critical bandwidth data
+    if mode == 3: # throughput
+        bandwidths = bandwidth.my_range(8, 80, 8)
+        throughput = [read_throughput(delay_bound, policy, bw) for bw in bandwidths]
+        print throughput
+    elif mode == 2: # critical bandwidth data
         max_arrivals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         count = 10
         critical_bandwidths = [read_critical_bandwidth(x, y, delay_bound, policy, max_arrival, count) for max_arrival in max_arrivals]
@@ -144,6 +149,17 @@ def read_stability(bw_target, bw_list, ratio_list):
     if stability_edge > 0:
         stability_indicator = True
     return stability_indicator
+
+def read_throughput(delay, policy, bandwidths):
+    for bw in bandwidths:
+        filename = "throughput/delay"+str(delay)+"/stability-"+policy+"-b"+str(bw)+".txt"
+        words = []
+        with open(filename, 'r') as f:
+            for line in f:
+                words.extend(line.split())
+        num_arrival = float(words[-2])
+        num_departure = float(words[-1])
+        return num_departure/num_arrival
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -17,6 +17,7 @@ def main():
     save_config_and_deficit = 0
     output_throughput = 1
     input_file = "input.txt"
+    network_file = "network-5.txt"
     stability_file_prefix = "stability"
     bandwidth.word_writer(input_file, 8, 3, qos_x)
     bandwidth.word_writer(input_file, 8, 4, qos_y)
@@ -26,6 +27,7 @@ def main():
     bandwidth.word_writer(input_file, 12, 3, time_seed)
     bandwidth.word_writer(input_file, 13, 5, save_config_and_deficit)
     bandwidth.word_writer(input_file, 14, 3, output_throughput)
+    directory = ""
     for delay in delays:
         bandwidth.word_writer(input_file, 5, 5, delay)
         bandwidth.word_writer(input_file, 6, 5, delay)
@@ -34,17 +36,10 @@ def main():
             os.makedirs(directory)
         for bw in bandwidth.my_range(bw_begin, bw_end, bw_step):
             bandwidth.word_writer(input_file, 7, 2, bw)
-            cdin = Chdir(directory)
+            os.chdir(directory)
             os.system("nice time ../../real-time-scheduler ../../"+input_file+" ../../"+network_file+" "+stability_file_prefix)
-            cdin = Chdir("../../")
+            os.chdir("../../")
             print "Done with bandwidth", bw, "delay", delay
-
-class Chdir:
-    def __init__( self, newPath ):
-        self.savedPath = os.getcwd()
-        os.chdir(newPath)
-    def __del__( self ):
-        os.chdir( self.savedPath )
 
 if __name__ == "__main__":
     main()

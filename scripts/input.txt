@@ -11,3 +11,4 @@ Number of iterations: 10000
 Policy indicator: 1
 Timed seed: 1
 Save config and deficits: 0
+Output throughput: 1

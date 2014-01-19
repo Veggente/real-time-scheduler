@@ -60,7 +60,7 @@ def main(argv):
     bw_end = 72
     bw_step = 24
     if mode == 3: # throughput
-        bandwidths = bandwidth.my_range(8, 80, 8)
+        bandwidths = bandwidth.my_range(30, 80, 5)
         throughput = [read_throughput(delay_bound, policy, bw) for bw in bandwidths]
         print throughput
     elif mode == 2: # critical bandwidth data
@@ -150,16 +150,15 @@ def read_stability(bw_target, bw_list, ratio_list):
         stability_indicator = True
     return stability_indicator
 
-def read_throughput(delay, policy, bandwidths):
-    for bw in bandwidths:
-        filename = "throughput/delay"+str(delay)+"/stability-"+policy+"-b"+str(bw)+".txt"
-        words = []
-        with open(filename, 'r') as f:
-            for line in f:
-                words.extend(line.split())
-        num_arrival = float(words[-2])
-        num_departure = float(words[-1])
-        return num_departure/num_arrival
+def read_throughput(delay, policy, bw):
+    filename = "throughput/delay"+str(delay)+"/stability-"+policy+"-b"+str(bw)+".txt"
+    words = []
+    with open(filename, 'r') as f:
+        for line in f:
+            words.extend(line.split())
+    num_arrival = float(words[-2])
+    num_departure = float(words[-1])
+    return num_departure/num_arrival
 
 if __name__ == "__main__":
     main(sys.argv[1:])

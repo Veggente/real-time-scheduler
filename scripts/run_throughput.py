@@ -4,11 +4,11 @@ import sys
 import bandwidth
 
 def main():
-    delays = [1, 2]
-    bw_begin = 8
+    delays = [2]
+    bw_begin = 30
     bw_end = 80
-    bw_step = 8
-    num_iterations = 200
+    bw_step = 5
+    num_iterations = 20000
     policy_indicator = 56
     time_seed = 1
     qos_x = 1

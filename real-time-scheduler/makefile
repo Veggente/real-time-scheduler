@@ -5,4 +5,4 @@ old:
 g++:
 	g++ -Wall -std=c++11 *.cpp -O3 -o real-time-scheduler
 clean:
-	rm -rf real-time-simulator
+	rm -rf real-time-scheduler

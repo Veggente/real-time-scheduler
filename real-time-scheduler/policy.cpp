@@ -9,7 +9,6 @@
 #include <algorithm>
 #include "./common.h"
 #include "./real_time_queueing.h"
-    // TODO(Veggente): why do we need to include this?
 
 bool comp_pairs(const IndexPair &p1, const IndexPair &p2);
 BooleanVector available_queues(const Queues &q);
@@ -21,7 +20,7 @@ BooleanVector greedy(const BooleanVector &availability,
                      std::mt19937 &rng) {
     BooleanVector schedule;
     int network_size = static_cast<int>(availability.size());
-    long min_priority = *std::min_element(priority.begin(), priority.end());
+    int64_t min_priority = *std::min_element(priority.begin(), priority.end());
     Counters available_priority;  // actual priority
     IndexMapping available_priority_map;  // map of indices and priority
     for (int i = 0; i < network_size; ++i) {

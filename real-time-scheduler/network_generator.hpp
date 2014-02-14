@@ -37,7 +37,7 @@ std::vector<Type> eliminate_duplicates(const std::vector<Type>& v) {
         return v;
     } else {
         std::set<Type> s(v.begin(), v.end());
-        std::vector<Type> uniq(s.begin(), s.end());  // NOLINT
+        std::vector<Type> uniq(s.begin(), s.end());
         return uniq;
     }
 }

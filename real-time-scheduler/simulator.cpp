@@ -21,7 +21,8 @@
 #include "./prettyprint.hpp"
 #include "./enum_parser.h"
 
-BooleanVector int_to_bool_vec(int a);  // TODO(Veggente): generalized case
+BooleanVector int_to_bool_vec(int a);
+int int_pow(int base, int exp);  // small integer powers
 
 Simulator::Simulator() {
     network_type_ = COLLOCATED;
@@ -58,7 +59,7 @@ bool Simulator::init(const std::string &config_filename,
     EnumParser<NetworkType> parser_net;
     network_type_ = parser_net.string_to_enum(network_type_string);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> network_size_;  // TODO(Veggente): will be ignored for unit-disk
+    in >> network_size_;  // will be overwritten for unit-disk networks
     switch (network_type_) {
         case COLLOCATED:
             maximal_schedule_matrix_ = gen_max_matrix_collocated(network_size_);
@@ -466,25 +467,19 @@ void Simulator::save_stability_ratios(const std::string &stability_filename) {
     }
 }
 
-BooleanVector int_to_bool_vec(int a) {  // TODO(Veggente): generalized case
+BooleanVector int_to_bool_vec(int a) {
     BooleanVector indicator(POLICY_COUNT, false);
-    if (a%64 > 31) {
-        indicator[5] = true;  // random maximal
-    }
-    if (a%32 > 15) {
-        indicator[4] = true;  // SDBF-naive
-    }
-    if (a%16 > 7) {
-        indicator[3] = true;  // EDF-naive
-    }
-    if (a%8 > 3) {
-        indicator[2] = true;  // SDBF
-    }
-    if (a%4 > 1) {
-        indicator[1] = true;  // EDF
-    }
-    if (a%2 > 0) {
-        indicator[0] = true;  // LDF
+    for (int i = 0; i < POLICY_COUNT; ++i) {
+        if (a%int_pow(2, i+1) >= int_pow(2, i)) {
+            indicator[i] = true;
+        }
     }
     return indicator;
+}
+
+int int_pow(int base, int exp) {
+    if (exp == 0) {
+        return 1;
+    }
+    return base*int_pow(base, exp-1);
 }

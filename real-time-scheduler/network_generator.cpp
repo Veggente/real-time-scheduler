@@ -15,7 +15,7 @@
 BooleanMatrix gen_max_matrix_collocated(int network_size) {
     BooleanMatrix maximal_schedule_matrix;
     for (int i = 0; i < network_size; ++i) {
-        BooleanVector schedule(network_size, false);  // NOLINT
+        BooleanVector schedule(network_size, false);
         schedule[i] = true;
         maximal_schedule_matrix.push_back(schedule);
     }

@@ -4,11 +4,11 @@ Arrival distribution: bernoulli
 Arrival parameters: 1 10 0.5 1 10 0.5
 Min delay bound: 1 2
 Max delay bound: 1 2
-Bandwidths: 80
+Bandwidths: 1 2
 Base QoS: 1 1
-Ratios of QoS: 0
-Number of iterations: 20000
-Policy indicator: 56
+Ratios of QoS: 0.5 0.6
+Number of iterations: 1000
+Policy indicator: 3
 Timed seed: 1
-Save config and deficits: 0
+Save config and deficits: 1
 Output throughput: 1

@@ -34,9 +34,8 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
     per_link_queue_.insert(per_link_queue_.begin(), network_size(),
                            empty_packet_set);
     if ( (scheduler() == SDBF) || (scheduler() == SDBF_NAIVE) ) {
-            // TODO(Veggente): customizable tie-breakers
         intra_link_tie_breaker_ = DELAY_BOUND;
-    } else {
+    } else {  // default intra-link tie-breaker
         intra_link_tie_breaker_ = DEADLINE;
     }
     lower_deficit_sum_ = 0;
@@ -47,7 +46,6 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
 }
 
 void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
-    // TODO(Veggente): first check compatibility
     Counters deficit_increase = deficit_arrival(traffic, qos(), rng);
     for (int i = 0; i < network_size(); ++i) {
         per_link_queue_[i].insert(per_link_queue_[i].begin(),
@@ -100,17 +98,18 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
             scheduled_links = maximal(per_link_queue(),
                                       maximal_schedule_matrix(), rng);
         } else {
-            // TODO(Veggente): should not happen
+            std::cerr << "Error: scheduler type not recognized!" << std::endl;
+            exit(1);
+            break;
         }
         for (int i = 0; i < network_size(); ++i) {
             if (scheduled_links[i]) {
-                if (intra_link_tie_breaker() == DEADLINE) {
-                        // TODO(Veggente): customizable tie-breakers
-                    pop_heap(per_link_queue_[i].begin(),
-                             per_link_queue_[i].end(), cmp_deadline);
-                } else {
+                if (intra_link_tie_breaker() == DELAY_BOUND) {
                     pop_heap(per_link_queue_[i].begin(),
                              per_link_queue_[i].end(), cmp_delay_bound);
+                } else {  // default intra-link tie-breaker is DEADLINE
+                    pop_heap(per_link_queue_[i].begin(),
+                             per_link_queue_[i].end(), cmp_deadline);
                 }
                 per_link_queue_[i].pop_back();
                 if (per_link_deficit_updated[i] > 0) {
@@ -165,9 +164,9 @@ void QueueingSystem::update_stability_counter() {
             current_deficit_sum += per_link_deficit()[i];
         }
         if (system_clock() >= half_point()) {
-            upper_deficit_sum_ += static_cast<double>(current_deficit_sum);
+            upper_deficit_sum_ += current_deficit_sum;
         } else {
-            lower_deficit_sum_ += static_cast<double>(current_deficit_sum);
+            lower_deficit_sum_ += current_deficit_sum;
         }
     }
 }
@@ -182,16 +181,16 @@ double QueueingSystem::stability_ratio() {
     }
 }
 
-long QueueingSystem::sum_cumulative_arrival() {
-    long sum = 0;
+int64_t QueueingSystem::sum_cumulative_arrival() {
+    int64_t sum = 0;
     for (int i = 0; i < network_size(); ++i) {
         sum += per_link_cumulative_arrival_[i];
     }
     return sum;
 }
 
-long QueueingSystem::sum_cumulative_throughput() {
-    long sum = 0;
+int64_t QueueingSystem::sum_cumulative_throughput() {
+    int64_t sum = 0;
     for (int i = 0; i < network_size(); ++i) {
         sum += per_link_cumulative_throughput_[i];
     }

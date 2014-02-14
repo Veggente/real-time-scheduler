@@ -53,7 +53,7 @@ typedef std::vector<PacketSet> Traffic;
 typedef std::vector<PacketSet> Queues;
 typedef std::vector<double> Ratios;
 typedef std::vector<int> IntegerVector;
-typedef std::vector<long> Counters;
+typedef std::vector<int64_t> Counters;
 typedef std::vector<PacketSet> Queues;
 typedef std::vector<bool> BooleanVector;
 typedef std::vector<std::vector<bool>> BooleanMatrix;

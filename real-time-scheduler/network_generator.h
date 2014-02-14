@@ -27,6 +27,7 @@ gen_max_matrix_line_recursive_with_duplicate_check(int network_size,
     // for recursively generating line networks
 
 BooleanMatrix load_network(const std::string network_filename);
+    // load network from file
 
 template <typename Type>
 std::vector<std::vector<Type>> append_vector(

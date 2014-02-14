@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import bandwidth
-import sys, getopt
+import sys
+import getopt
 
 def main(argv):
     try:
@@ -17,7 +18,6 @@ def main(argv):
     bw_end = 1 # int(float(sys.argv[6]))
     bw_step = 1 # int(float(sys.argv[7]))
     mode = 0 # default: QoS stability region data
-#    qos_bandwidth_plot = False # default is QoS stability region plot
     for o, a in opts:
         if o == "-p":
             policy = a
@@ -27,33 +27,13 @@ def main(argv):
             y = a
         elif o == "-d":
             delay_bound = a
-#        elif o == "-b":
-#            bw_start = int(float(a))
-#        elif o == "-e":
-#            bw_end = int(float(a))
-#        elif o == "-s":
-#            bw_step = int(float(a))
         elif o == "-m":
-#            qos_bandwidth_plot = True # QoS bandwidth function plot
             mode = int(a) # 0(default): QoS stability region data
                           # 1: QoS--bandwidth data
                           # 2: critical bandwidth data for varying arrial
                           # 3: throughput
         else:
             assert False, "unhandled option"
-#    print "The critical QoS ratios for policy "+policy+", base QoS ("+x+", "+y+"), delay bound "+delay_bound+", bandwidths "+str(bw_start)+":"+str(bw_step)+":"+str(bw_end)+" are"
-#    print read_policy(policy, x, y, delay_bound, bw_start, bw_end, bw_step)
-#    for bw in bandwidth.my_range(bw_start, bw_end, bw_step):
-#        stability_file = "./qos-x"+str(x)+"-y"+str(y)+"/delay_bound_"+delay_bound+"/stability-"+policy+"-b"+str(bw)+".txt"
-#        f = open(stability_file)
-#        print f.read().split()[-2]
-#        f.close()
-#    print "The associated stability ratios are"
-#    for bw in bandwidth.my_range(bw_start, bw_end, bw_step):
-#        stability_file = "./qos-x"+str(x)+"-y"+str(y)+"/delay_bound_"+delay_bound+"/stability-"+policy+"-b"+str(bw)+".txt"
-#        f = open(stability_file)
-#        print f.read().split()[-1]
-#        f.close()
     x_list = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
     y_list = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
     bw_start = 24

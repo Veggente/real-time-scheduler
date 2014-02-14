@@ -14,7 +14,7 @@
 #include "./real_time_queueing.h"
 
 class Simulator {
-public:  // NOLINT
+public:  // NOLINT (to suppress cpplint.py style check errors)
     Simulator();  // zero-initialization
     bool init(const std::string &config_filename,
               const std::string &network_filename, std::mt19937 &rng);

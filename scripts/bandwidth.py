@@ -78,12 +78,6 @@ def bisection_adjust_int(last_correct_value, this_value, step_size, min_value, m
     import math
     import random
     if math.fabs(last_correct_value-this_value) <= step_size:
-#        if last_correct_value > this_value:
-#            return this_value+step_size
-#        elif last_correct_value == this_value:
-#            if random.random() > 0.5:
-#                return this_value+step_size
-#        return this_value-step_size
         if this_eval > 1.5:
             return this_value+step_size
         else:

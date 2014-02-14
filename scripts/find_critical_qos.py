@@ -1,5 +1,6 @@
 #!/usr/bin/python
-import sys, getopt
+import sys
+import getopt
 import bandwidth
 import os
 

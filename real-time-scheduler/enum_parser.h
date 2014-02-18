@@ -54,12 +54,14 @@ EnumParser<Policy>::EnumParser() {
     enum_to_string_[EDF_NAIVE] = "edf-naive";
     enum_to_string_[SDBF_NAIVE] = "sdbf-naive";
     enum_to_string_[MAXIMAL] = "maximal";
+    enum_to_string_[LDF_THRESHOLD] = "ldf-threshold";
     string_to_enum_["ldf"] = LDF;
     string_to_enum_["edf"] = EDF;
     string_to_enum_["sdbf"] = SDBF;
     string_to_enum_["edf-naive"] = EDF_NAIVE;
     string_to_enum_["sdbf-naive"] = SDBF_NAIVE;
     string_to_enum_["maximal"] = MAXIMAL;
+    string_to_enum_["ldf-threshold"] = LDF_THRESHOLD;
 }
 
 template<>

@@ -20,7 +20,7 @@ bool cmp_deadline(const Packet &a, const Packet &b);
 
 QueueingSystem::QueueingSystem(const BooleanMatrix &m,
                                Policy s, Ratios q, int b,
-                               int d, const std::string &f, int n) {
+                               int d, const std::string &f, int n, double th) {
     maximal_schedule_matrix_ = m;
     scheduler_ = s;
     qos_ = q;
@@ -43,6 +43,7 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
     num_iterations_ = n;
     per_link_cumulative_throughput_ = Counters(network_size(), 0);
     per_link_cumulative_arrival_ = Counters(network_size(), 0);
+    threshold_ratio_ = th;
 }
 
 void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
@@ -97,6 +98,10 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
         } else if (scheduler() == MAXIMAL) {
             scheduled_links = maximal(per_link_queue(),
                                       maximal_schedule_matrix(), rng);
+        } else if (scheduler() == LDF_THRESHOLD) {
+            scheduled_links = ldf_threshold(per_link_queue(),
+                per_link_deficit(), maximal_schedule_matrix(), system_clock(),
+                max_delay_bound(), threshold_ratio_, rng);
         } else {
             std::cerr << "Error: scheduler type not recognized!" << std::endl;
             exit(1);

@@ -29,7 +29,7 @@ class QueueingSystem {
 public:  // NOLINT
     QueueingSystem(const BooleanMatrix &m,
                    Policy s, Ratios q, int b,
-                   int d, const std::string &f, int n);
+                   int d, const std::string &f, int n, double th);
     Queues per_link_queue() const {return per_link_queue_;}
     Counters per_link_deficit() const {return per_link_deficit_;}
     int network_size() const {return network_size_;}
@@ -72,6 +72,7 @@ private:  // NOLINT
     int num_iterations_;
     Counters per_link_cumulative_throughput_;
     Counters per_link_cumulative_arrival_;
+    double threshold_ratio_;  // for ldf-threshold policy
 };
 
 #endif  // REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_

@@ -21,6 +21,7 @@ enum Policy {
     EDF_NAIVE,  // deficit-unaware EDF
     SDBF_NAIVE,  // deficit-unaware SDBF
     MAXIMAL,  // random maximal
+    LDF_THRESHOLD,  // LDF with threshold
     POLICY_COUNT
 };
 

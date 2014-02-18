@@ -45,6 +45,7 @@ Simulator::Simulator() {
     system_clock_ = 0;
     rng_seed_ = 0;
     output_throughput_ = false;
+    threshold_ratio_ = 0;
 }
 
 bool Simulator::init(const std::string &config_filename,
@@ -220,6 +221,9 @@ bool Simulator::init(const std::string &config_filename,
     int policy_indicator_int;
     in >> policy_indicator_int;
     policy_indicator_ = int_to_bool_vec(policy_indicator_int);
+    if (policy_indicator_[LDF_THRESHOLD]) {
+        in >> threshold_ratio_;
+    }
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     int timed_seed_indicator;
     in >> timed_seed_indicator;
@@ -265,7 +269,7 @@ bool Simulator::init(const std::string &config_filename,
                                            static_cast<Policy>(policy_it),
                                            scaled_qos, bandwidth_[bandwidth_it],
                                            max_delay_bound_overall, temp_name,
-                                           num_iterations());
+                                           num_iterations(), threshold_ratio_);
                 temp_system_vector.push_back(temp_system);
             }
             temp_system_matrix.push_back(temp_system_vector);
@@ -304,8 +308,12 @@ void Simulator::save_config() {
                 }
                 EnumParser<Policy> parser_pol;
                 out << "Policy: "
-                    << parser_pol.enum_to_string(static_cast<Policy>(policy_it))
-                    << std::endl;
+                    << parser_pol.enum_to_string(
+                         static_cast<Policy>(policy_it));
+                if (static_cast<Policy>(policy_it) == LDF_THRESHOLD) {
+                    out << "(" << threshold_ratio_ << ")";
+                }
+                out << std::endl;
                 out << "Max delay bound: " << max_delay_bound_
                     << std::endl;
                 out << "Min delay bound: " << min_delay_bound_

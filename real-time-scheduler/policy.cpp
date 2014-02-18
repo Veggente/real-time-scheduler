@@ -171,6 +171,39 @@ BooleanVector maximal(const Queues &queues_deadline_heap,
                   maximal_schedule_matrix, rng);
 }
 
+BooleanVector ldf_threshold(const Queues &queues_deadline_heap,
+                            const Counters &deficits,
+                            const BooleanMatrix &maximal_schedule_matrix,
+                            int current_time, int max_delay_bound,
+                            double threshold_ratio, std::mt19937 &rng) {
+    int64_t max_deficit = *std::max_element(deficits.begin(), deficits.end());
+    int64_t threshold = static_cast<int64_t>(static_cast<double>(max_deficit)
+                                             *threshold_ratio);
+    Counters priority;
+    int network_size = static_cast<int>(queues_deadline_heap.size());
+    for (int i = 0; i < network_size; ++i) {
+        if (queues_deadline_heap[i].empty()) {
+            priority.push_back(0);
+                // priority does not matter for unavailable links
+        } else {
+            if (deficits[i] >= threshold) {
+                    // do EDF for those with deficit >= threshold
+                int remaining_delay_bound =
+                    queues_deadline_heap[i][0].deadline()-current_time+1;
+                priority.push_back(max_delay_bound+1-remaining_delay_bound);
+                    // the priority is guaranteed positive, so those with
+                    // deficits >= threshold have relative higher priority than
+                    // those with deficits < threshold
+            } else {  // do LDF for those with deficits < threshold
+                priority.push_back(deficits[i]-max_deficit-1);
+                    // the priority is guaranteed negative
+            }
+        }
+    }
+    return greedy(available_queues(queues_deadline_heap), priority,
+                  maximal_schedule_matrix, rng);
+}
+
 bool comp_pairs(const IndexPair &p1, const IndexPair &p2) {
         // for random tie-breaking in greedy()
     return (p1.first < p2.first);

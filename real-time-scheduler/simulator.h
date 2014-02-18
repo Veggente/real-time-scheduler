@@ -49,6 +49,7 @@ private:  // NOLINT
     int system_clock_;
     int rng_seed_;
     bool output_throughput_;
+    double threshold_ratio_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_SIMULATOR_H_

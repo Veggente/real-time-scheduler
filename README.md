@@ -50,7 +50,7 @@ Bandwidths: 1 2
 Base QoS: 1 1
 Ratios of QoS: 0.5 0.6
 Number of iterations: 1000
-Policy indicator: 3
+Policy indicator: 66 0.9
 Timed seed: 1
 Save config and deficits: 1
 Output throughput: 1
@@ -67,7 +67,7 @@ Here are some notes:
 - *Base QoS* is the reference QoS vector of two components. Each component is assigned to random half of the links.
 - *Ratios of QoS* is a sequence of ratios which we multiply to the base QoS to get the actual QoS we use.
 - *Number of iterations* is the number of time slots in the simulation.
-- *Policy indicator* specifies which of the policies to use. For example 3 = 000011(base 2) means only the first two policies (LDF and EDF) are tested.
+- *Policy indicator* specifies which of the policies to use. For example 66 = 1000010(base 2) means only the second and the seventh policies (EDF and LDF-THRESHOLD) are tested. If LDF-THRESHOLD is selected then the threshold ratio must be provided after the indicator (0.9 in the example).
 - *Timed seed* is 1 if the random number generator uses timed seed, and 0 if it uses fixed seed.
 - *Save config and deficits* is 1 if the configuration of the simulation and the deficits for each time slots and each link are outputted, and 0 otherwise.
 - *Output throughput* is 1 if the throughput is included in the stability output files, and 0 otherwise.
@@ -150,18 +150,18 @@ Here each line starting from line 4 is a maximum independent set. This network f
 The output files in this example are
 
 ```
-un20-it1000-ldf-b2-x1-y1-r0.6.txt
-un20-it1000-ldf-b2-x1-y1-r0.5.txt
-un20-it1000-ldf-b1-x1-y1-r0.6.txt
-un20-it1000-ldf-b1-x1-y1-r0.5.txt
-un20-it1000-edf-b2-x1-y1-r0.6.txt
-un20-it1000-edf-b2-x1-y1-r0.5.txt
-un20-it1000-edf-b1-x1-y1-r0.6.txt
 un20-it1000-edf-b1-x1-y1-r0.5.txt
-stability_output_prefix-ldf-b2.txt
-stability_output_prefix-ldf-b1.txt
-stability_output_prefix-edf-b2.txt
+un20-it1000-edf-b1-x1-y1-r0.6.txt
+un20-it1000-edf-b2-x1-y1-r0.5.txt
+un20-it1000-edf-b2-x1-y1-r0.6.txt
+un20-it1000-ldf-threshold-b1-x1-y1-r0.5.txt
+un20-it1000-ldf-threshold-b1-x1-y1-r0.6.txt
+un20-it1000-ldf-threshold-b2-x1-y1-r0.5.txt
+un20-it1000-ldf-threshold-b2-x1-y1-r0.6.txt
 stability_output_prefix-edf-b1.txt
+stability_output_prefix-edf-b2.txt
+stability_output_prefix-ldf-threshold-b1.txt
+stability_output_prefix-ldf-threshold-b2.txt
 ```
 where the `un*` files contain the configuration and deficits, and `stability*` files are the stability output files which contain the stability ratios for stability check.
 

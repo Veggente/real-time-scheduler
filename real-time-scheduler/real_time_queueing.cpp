@@ -59,7 +59,7 @@ void QueueingSystem::arrive(const Traffic &traffic, std::mt19937 &rng) {
 Counters QueueingSystem::queue_lengths() {
     Counters queues;
     for (int i = 0; i < network_size(); ++i) {
-        queues.push_back(static_cast<int>(per_link_queue()[i].size()));
+        queues.push_back(static_cast<int>(per_link_queue_[i].size()));
     }
     return queues;
 }
@@ -74,33 +74,33 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                       cmp_deadline);
         }  // for RANDOM no tie-breaker is specified, so no heap is made
     }
-    Counters per_link_deficit_updated = per_link_deficit();
+    Counters per_link_deficit_updated = per_link_deficit_;
     for (int sub_time_slot = 0; sub_time_slot < bandwidth(); ++sub_time_slot) {
         BooleanVector scheduled_links(network_size(), false);
         if (scheduler() == LDF) {
-            scheduled_links = ldf(per_link_queue(), per_link_deficit(),
-                                  maximal_schedule_matrix(), rng);
+            scheduled_links = ldf(per_link_queue_, per_link_deficit_,
+                                  maximal_schedule_matrix_, rng);
         } else if (scheduler() == EDF) {
-            scheduled_links = edf(per_link_queue(), per_link_deficit(),
-                                  maximal_schedule_matrix(), system_clock(),
+            scheduled_links = edf(per_link_queue_, per_link_deficit_,
+                                  maximal_schedule_matrix_, system_clock(),
                                   max_delay_bound(), rng);
         } else if (scheduler() == SDBF) {
-            scheduled_links = sdbf(per_link_queue(), per_link_deficit(),
-                                   maximal_schedule_matrix(), max_delay_bound(),
+            scheduled_links = sdbf(per_link_queue_, per_link_deficit_,
+                                   maximal_schedule_matrix_, max_delay_bound(),
                                    rng);
         } else if (scheduler() == EDF_NAIVE) {
-            scheduled_links = edf_naive(per_link_queue(),
-                                        maximal_schedule_matrix(),
+            scheduled_links = edf_naive(per_link_queue_,
+                                        maximal_schedule_matrix_,
                                         system_clock(), rng);
         } else if (scheduler() == SDBF_NAIVE) {
-            scheduled_links = sdbf_naive(per_link_queue(),
-                                         maximal_schedule_matrix(), rng);
+            scheduled_links = sdbf_naive(per_link_queue_,
+                                         maximal_schedule_matrix_, rng);
         } else if (scheduler() == MAXIMAL) {
-            scheduled_links = maximal(per_link_queue(),
-                                      maximal_schedule_matrix(), rng);
+            scheduled_links = maximal(per_link_queue_,
+                                      maximal_schedule_matrix_, rng);
         } else if (scheduler() == LDF_THRESHOLD) {
-            scheduled_links = ldf_threshold(per_link_queue(),
-                per_link_deficit(), maximal_schedule_matrix(), system_clock(),
+            scheduled_links = ldf_threshold(per_link_queue_,
+                per_link_deficit_, maximal_schedule_matrix_, system_clock(),
                 max_delay_bound(), threshold_ratio_, rng);
         } else {
             std::cerr << "Error: scheduler type not recognized!" << std::endl;
@@ -131,9 +131,9 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
 void QueueingSystem::clock_tick() {
     ++system_clock_;
     for (int i = 0; i < network_size(); ++i) {
-        for (int j = static_cast<int>(per_link_queue()[i].size())-1; j >= 0;
+        for (int j = static_cast<int>(per_link_queue_[i].size())-1; j >= 0;
              --j) {
-            if (per_link_queue()[i][j].deadline() < system_clock()) {
+            if (per_link_queue_[i][j].deadline() < system_clock()) {
                 per_link_queue_[i].erase(per_link_queue_[i].begin()+j);
             }
         }
@@ -147,10 +147,10 @@ void QueueingSystem::output_deficits(const std::string &filename) {
             << std::endl;
         exit(1);
     }
-    for (int i = 0; i < network_size()-1; ++i) {
-        out << per_link_deficit()[i] << " ";
+    for (auto i : per_link_deficit_) {
+        out << i << " ";
     }
-    out << per_link_deficit().back() << std::endl;
+    out << std::endl;
     out.close();
 }
 
@@ -166,7 +166,7 @@ void QueueingSystem::update_stability_counter() {
     if (system_clock() >= quarter_point()) {
         int current_deficit_sum = 0;
         for (int i = 0; i < network_size(); ++i) {
-            current_deficit_sum += per_link_deficit()[i];
+            current_deficit_sum += per_link_deficit_[i];
         }
         if (system_clock() >= half_point()) {
             upper_deficit_sum_ += current_deficit_sum;

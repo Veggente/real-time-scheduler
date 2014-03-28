@@ -13,6 +13,9 @@
 #include <utility>
 #include <string>
 #include <iostream>  // NOLINT
+#ifdef __CYGWIN32__
+    #include "./patch.h"
+#endif  // __CYGWIN32__
 
 enum Policy {
     LDF,  // largest-deficit-first

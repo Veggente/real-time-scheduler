@@ -18,13 +18,14 @@
 #endif  // __CYGWIN32__
 
 enum Policy {
-    LDF,  // largest-deficit-first
-    EDF,  // earliest-deadline-first
-    SDBF,  // shortest-delay-bound-first
-    EDF_NAIVE,  // deficit-unaware EDF
-    SDBF_NAIVE,  // deficit-unaware SDBF
-    MAXIMAL,  // random maximal
-    LDF_THRESHOLD,  // LDF with threshold
+    LDF,            // Largest-deficit-first.
+    EDF,            // Earliest-deadline-first.
+    SDBF,           // Shortest-delay-bound-first.
+    EDF_NAIVE,      // Deficit-unaware EDF.
+    SDBF_NAIVE,     // Deficit-unaware SDBF.
+    MAXIMAL,        // Random maximal.
+    LDF_THRESHOLD,  // LDF with threshold.
+    LDF_VISION,     // LDF with vision (greedily selects pairs).
     POLICY_COUNT
 };
 
@@ -66,6 +67,7 @@ typedef std::pair<int, int> IndexPair;  // (priority, index) pair
 typedef std::vector<IndexPair> IndexMapping;
     // (priority, index) mapping
 typedef std::vector<std::vector<std::vector<QueueingSystem>>> QueueingSystem3D;
+typedef std::vector<IntegerVector> IntegerMatrix;
 
 const int HUNDRED = 100;
 const int NETWORK_TYPE_ID_LEN = 2;

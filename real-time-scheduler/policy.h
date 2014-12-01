@@ -51,4 +51,9 @@ BooleanVector ldf_threshold(const Queues &queues_deadline_heap,
                             int current_time, int max_delay_bound,
                             double threshold_ratio, std::mt19937 &rng);
 
+BooleanVector ldf_vision(const Queues &queues_deadline_heap,
+                         const Counters &deficits,
+                         const BooleanMatrix &maximal_schedule_matrix,
+                         std::mt19937 &rng);
+
 #endif  // REAL_TIME_SCHEDULER_POLICY_H_

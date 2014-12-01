@@ -91,7 +91,6 @@ bool Simulator::init(const std::string &config_filename,
     in >> arrival_dist_string;
     EnumParser<ArrivalDistribution> parser_arr;
     arrival_dist_ = parser_arr.string_to_enum(arrival_dist_string);
-    min_packet_ = IntegerVector(network_size_, 0);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     BooleanVector type_indicator(network_size_/2, false);
     type_indicator.insert(type_indicator.end(),

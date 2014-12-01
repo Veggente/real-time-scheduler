@@ -9,7 +9,7 @@
 #include <string>
 #include "./simulator.h"
 
-const int NUM_INPUT_FILES = 3;  // input, network, stability-output files
+const int NUM_INPUT_FILES = 3;  // Input, network, stability-output files.
 
 int main(int argc, const char * argv[]) {
     if (argc != NUM_INPUT_FILES+1) {

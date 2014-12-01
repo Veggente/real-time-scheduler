@@ -5,7 +5,7 @@ A time-slotted network simulator for scheduling packets with hard deadlines.
 
 Compilation
 ===========
-- To compile on OS X 10.9:
+- To compile on OS X 10.9 or higher:
 
 ```bash
 cd real-time-scheduler/
@@ -19,7 +19,7 @@ cd real-time-scheduler/
 make old
 ```
 
-- To compile on Linux with `g++4.6` or higher
+- To compile on Linux with `g++4.6` or higher:
 
 ```bash
 cd real-time-scheduler/
@@ -58,13 +58,13 @@ Output throughput: 1
 Here are some notes:
 
 - *Network type* can be `collocated`, `line`, `cycle` or `unit-disk`.
-- *Topological parameters* are network size for `collocated`, network size and interference radius for `line` and `cycle`, and irrelevant for `unit-disk` since it will be overwritten by ``network_file.txt``.
+- *Topological parameters* are network size for `collocated`, network size and interference radius for `line` and `cycle`, and irrelevant for `unit-disk` since it will be overwritten by ``network_file.txt``. For example, if we want to simulate on a line network with size 7 and interference radius 1 (primary interference model), we should put `line` after *Network type* and put `7 1` after *Topological parameters*.
 - *Arrival distribution* can be `uniform`, `binomial` or `bernoulli`.
 - *Arrival parameters* are two sets of parameters for the arrival distribution. Half random links use one set and the other half use the other set.
 - *Min delay bound* are two sets of minimum delay bounds of packets. They are randomly assigned to the links.
 - *Max delay bound* are two sets of maximum delay bounds of packets. They are assigned to the corresponding links as for *Min delay bound*.
-- *Bandwidths* are a sequence of bandwidths/speedups the systems operate under. A bandwidth/speedup of k means each link can potentially transmit k packets instead of 1 in each time slot.
-- *Base QoS* is the reference QoS vector of two components. Each component is assigned to random half of the links.
+- *Bandwidths* are a sequence of bandwidths/speedups the systems are operated under. A bandwidth/speedup of k means each link can potentially transmit k packets instead of 1 in each time slot. In other words, each time slot is effectively divided into k sub-time-slots. The deficits are only updated at the end of each time slot, and remain unchanged during sub-time-slots.
+- *Base QoS* for `unit-disk` is the reference QoS vector of two components, where each component is assigned to random half of the links. For other network types, all the base QoS's of all links must be provided.
 - *Ratios of QoS* is a sequence of ratios which we multiply to the base QoS to get the actual QoS we use.
 - *Number of iterations* is the number of time slots in the simulation.
 - *Policy indicator* specifies which of the policies to use. For example 66 = 1000010(base 2) means only the second and the seventh policies (EDF and LDF-THRESHOLD) are tested. If LDF-THRESHOLD is selected then the threshold ratio must be provided after the indicator (0.9 in the example).

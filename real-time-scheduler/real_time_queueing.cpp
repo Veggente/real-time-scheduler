@@ -103,7 +103,8 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                 per_link_deficit_, maximal_schedule_matrix_, system_clock(),
                 max_delay_bound(), threshold_ratio_, rng);
         } else if (scheduler() == LDF_VISION) {
-            scheduled_links = ldf_vision(per_link_queue_, per_link_deficit_, maximal_schedule_matrix_, rng);
+            scheduled_links = ldf_vision(per_link_queue_, per_link_deficit_,
+                                         maximal_schedule_matrix_, rng);
         } else {
             std::cerr << "Error: scheduler type not recognized!" << std::endl;
             exit(1);

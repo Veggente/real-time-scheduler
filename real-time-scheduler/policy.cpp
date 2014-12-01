@@ -21,7 +21,7 @@ IntegerMatrix traverse(const IntegerVector &available_links);
 int64_t weighted_sum(const Counters &weight, const IntegerVector &link_set);
 IntegerVector match(const IntegerVector &trial, const BooleanMatrix &candidate,
                     const IntegerVector &survivor);
-void remove_elements(IntegerVector &original_set,
+void remove_elements(IntegerVector &original_set,  // NOLINT
                      const IntegerVector &elements);
 
 BooleanVector greedy(const BooleanVector &availability,
@@ -231,7 +231,6 @@ BooleanVector available_queues(const Queues &q) {
     return availability;
 }
 
-// TODO(Veggente): add randomness.
 BooleanVector ldf_vision(const Queues &queues_deadline_heap,
                          const Counters &deficits,
                          const BooleanMatrix &maximal_schedule_matrix,
@@ -252,6 +251,7 @@ BooleanVector ldf_vision(const Queues &queues_deadline_heap,
         IntegerVector winner;
         // Traverse trial in unconsidered_links.
         IntegerMatrix all_trials = traverse(unconsidered_links);
+        std::shuffle(all_trials.begin(), all_trials.end(), rng);
         for (int i = 0; i < all_trials.size(); ++i) {
             IntegerVector trial = all_trials[i];
             // Find the trial with largest deficit in some candidate[survivor],
@@ -318,7 +318,7 @@ IntegerVector get_indices(const BooleanMatrix &candidate) {
 IntegerMatrix traverse(const IntegerVector &available_links) {
     IntegerMatrix all_singletons_and_doubletons;
     for (int i = 0; i < available_links.size(); ++i) {
-        IntegerVector temp_vec{available_links[i]};
+        IntegerVector temp_vec{available_links[i]};  // NOLINT
         all_singletons_and_doubletons.push_back(temp_vec);
         temp_vec.push_back(-1);  // Placeholder.
         for (int j = i+1; j < available_links.size(); ++j) {
@@ -354,7 +354,7 @@ IntegerVector match(const IntegerVector &trial, const BooleanMatrix &candidate,
     return match_result;
 }
 
-void remove_elements(IntegerVector &original_set,
+void remove_elements(IntegerVector &original_set,  // NOLINT
                      const IntegerVector &elements) {
     for (int i = 0; i < elements.size(); ++i) {
         original_set.erase(std::remove(original_set.begin(), original_set.end(),

@@ -55,7 +55,7 @@ BooleanVector greedy(const BooleanVector &availability,
     // priority.
     IndexMapping::const_reverse_iterator rit;
     // Start from high priority.
-    IntegerVector survivor;  // Indices of surviving maximal schedules.
+    IntegerVector survivor;      // Indices of surviving maximal schedules.
     IntegerVector new_survivor;  // Temporary for swapping.
     for (int i = 0; i < maximal_schedule_matrix.size(); ++i) {
         survivor.push_back(i);
@@ -88,7 +88,7 @@ BooleanVector greedy(const BooleanVector &availability,
         if (availability[i]) {
             schedule.push_back(maximal_schedule_matrix[survivor.front()][i]);
         } else {
-            schedule.push_back(false);  // cannot schedule unavailable links
+            schedule.push_back(false);  // Cannot schedule unavailable links.
         }
     }
     return schedule;
@@ -111,13 +111,13 @@ BooleanVector edf(const Queues &queues_deadline_heap,
     for (int i = 0; i < network_size; ++i) {
         if (queues_deadline_heap[i].empty()) {
             priority.push_back(0);
-                // priority does not matter for unavailable links
+                // Priority does not matter for unavailable links.
         } else {
             int remaining_delay_bound = queues_deadline_heap[i][0].deadline()
                                         -current_time+1;
             if (deficits[i] > 0) {
                 priority.push_back(-remaining_delay_bound);
-            } else {  // zero deficit links have lower priority
+            } else {  // Zero deficit links have lower priority.
                 priority.push_back(-remaining_delay_bound-max_delay_bound);
             }
         }
@@ -126,8 +126,8 @@ BooleanVector edf(const Queues &queues_deadline_heap,
                   maximal_schedule_matrix, rng);
 }
 
-BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
-                                                           // heap
+BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // Min delay bound
+                                                           // heap.
                    const Counters &deficits,
                    const BooleanMatrix &maximal_schedule_matrix,
                    int max_delay_bound, std::mt19937 &rng) {
@@ -136,12 +136,12 @@ BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
     for (int i = 0; i < network_size; ++i) {
         if (queues_delay_bound_heap[i].empty()) {
             priority.push_back(0);
-            // priority does not matter for unavailable links
+            // Priority does not matter for unavailable links.
         } else {
             if (deficits[i] > 0) {
                 priority.push_back(
                     -queues_delay_bound_heap[i][0].delay_bound());
-            } else {  // zero deficit links have lower priority
+            } else {  // Zero deficit links have lower priority.
                 priority.push_back(-queues_delay_bound_heap[i][0].delay_bound()
                                    -max_delay_bound);
             }
@@ -194,19 +194,19 @@ BooleanVector ldf_threshold(const Queues &queues_deadline_heap,
     for (int i = 0; i < network_size; ++i) {
         if (queues_deadline_heap[i].empty()) {
             priority.push_back(0);
-                // priority does not matter for unavailable links
+                // Priority does not matter for unavailable links.
         } else {
             if (deficits[i] >= threshold) {
-                    // do EDF for those with deficit >= threshold
+                    // Do EDF for those with deficit >= threshold.
                 int remaining_delay_bound =
                     queues_deadline_heap[i][0].deadline()-current_time+1;
                 priority.push_back(max_delay_bound+1-remaining_delay_bound);
-                    // the priority is guaranteed positive, so those with
+                    // The priority is guaranteed positive, so those with
                     // deficits >= threshold have relative higher priority than
-                    // those with deficits < threshold
-            } else {  // do LDF for those with deficits < threshold
+                    // those with deficits < threshold.
+            } else {  // Do LDF for those with deficits < threshold.
                 priority.push_back(deficits[i]-max_deficit-1);
-                    // the priority is guaranteed negative
+                    // The priority is guaranteed negative.
             }
         }
     }
@@ -215,7 +215,7 @@ BooleanVector ldf_threshold(const Queues &queues_deadline_heap,
 }
 
 bool comp_pairs(const IndexPair &p1, const IndexPair &p2) {
-        // for random tie-breaking in greedy()
+        // For random tie-breaking in greedy().
     return (p1.first < p2.first);
 }
 

@@ -15,10 +15,10 @@
 
 class Simulator {
 public:  // NOLINT
-    Simulator();  // zero-initialization
+    Simulator();  // Zero-initialization.
     bool init(const std::string &config_filename,
               const std::string &network_filename, std::mt19937 &rng);
-    void save_config();  // save network config for all queueing systems
+    void save_config();  // Save network config for all queueing systems.
     void arrive(std::mt19937 &rng);  // NOLINT
     void depart(std::mt19937 &rng);  // NOLINT
     void update_stability_counter();
@@ -30,13 +30,13 @@ public:  // NOLINT
 private:  // NOLINT
     NetworkType network_type_;
     int network_size_;
-    int interference_radius_;  // of the conflict graph
+    int interference_radius_;  // Interference radius of the conflict graph.
     BooleanMatrix maximal_schedule_matrix_;
     ArrivalDistribution arrival_dist_;
-    IntegerVector min_packet_;  // only for uniform and Bernoulli arrival
+    IntegerVector min_packet_;  // Only for uniform and Bernoulli arrival.
     IntegerVector max_packet_;
-    Ratios binom_param_;  // only for binomial arrival
-    Ratios bern_param_;  // only for Bernoulli arrival
+    Ratios binom_param_;  // Only for binomial arrival.
+    Ratios bern_param_;  // Only for Bernoulli arrival.
     IntegerVector min_delay_bound_;
     IntegerVector max_delay_bound_;
     Ratios base_qos_;
@@ -44,8 +44,8 @@ private:  // NOLINT
     BooleanVector policy_indicator_;
     IntegerVector bandwidth_;
     Ratios qos_ratio_;
+    // Per-policy, per-bandwidth, per-qos-ratio systems.
     QueueingSystem3D queueing_system_;
-        // per-policy, per-bandwidth, per-qos-ratio systems
     int system_clock_;
     int rng_seed_;
     bool output_throughput_;

@@ -35,7 +35,7 @@ QueueingSystem::QueueingSystem(const BooleanMatrix &m,
                            empty_packet_set);
     if ( (scheduler() == SDBF) || (scheduler() == SDBF_NAIVE) ) {
         intra_link_tie_breaker_ = DELAY_BOUND;
-    } else {  // default intra-link tie-breaker
+    } else {  // Default intra-link tie-breaker.
         intra_link_tie_breaker_ = DEADLINE;
     }
     lower_deficit_sum_ = 0;
@@ -65,14 +65,14 @@ Counters QueueingSystem::queue_lengths() {
 }
 
 void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
-    for (int i = 0; i < network_size(); ++i) {  // make heaps
+    for (int i = 0; i < network_size(); ++i) {  // Make heaps.
         if (intra_link_tie_breaker() == DELAY_BOUND) {
             make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
                       cmp_delay_bound);
         } else if (intra_link_tie_breaker() == DEADLINE) {
             make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
                       cmp_deadline);
-        }  // for RANDOM no tie-breaker is specified, so no heap is made
+        }  // For RANDOM no tie-breaker is specified, so no heap is made.
     }
     Counters per_link_deficit_updated = per_link_deficit_;
     for (int sub_time_slot = 0; sub_time_slot < bandwidth(); ++sub_time_slot) {
@@ -115,16 +115,16 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                 if (intra_link_tie_breaker() == DELAY_BOUND) {
                     pop_heap(per_link_queue_[i].begin(),
                              per_link_queue_[i].end(), cmp_delay_bound);
-                } else {  // default intra-link tie-breaker is DEADLINE
+                } else {  // Default intra-link tie-breaker is DEADLINE.
                     pop_heap(per_link_queue_[i].begin(),
                              per_link_queue_[i].end(), cmp_deadline);
                 }
                 per_link_queue_[i].pop_back();
                 if (per_link_deficit_updated[i] > 0) {
-                    per_link_deficit_updated[i] -= 1;  // updated deficit
-                                                        // decreases
+                    per_link_deficit_updated[i] -= 1;  // Updated deficit
+                                                       // decreases.
                 }
-                ++per_link_cumulative_throughput_[i];  // throughput counter
+                ++per_link_cumulative_throughput_[i];  // Throughput counter.
             }
         }
     }
@@ -213,7 +213,7 @@ Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
         std::binomial_distribution<> d(static_cast<int>(traffic[i].size()),
                                        qos[i]);
             // TODO(Veggente): share the distributions to reduce object
-            // generation time
+            // generation time.
         deficit_increase[i] = d(rng);
     }
     return deficit_increase;
@@ -221,10 +221,10 @@ Counters deficit_arrival(const Traffic &traffic, const Ratios &qos,
 
 bool cmp_delay_bound(const Packet &a, const Packet &b) {
     return (a.delay_bound() > b.delay_bound());
-        // a is considered less than b when a has a larger delay bound
+        // a is considered less than b when a has a larger delay bound.
 }
 
 bool cmp_deadline(const Packet &a, const Packet &b) {
     return (a.deadline() > b.deadline());
-        // a is considered less than b when a has a larger deadline
+        // a is considered less than b when a has a larger deadline.
 }

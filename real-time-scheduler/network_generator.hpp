@@ -15,9 +15,9 @@ std::vector<std::vector<Type>> append_vector(
     const std::vector<std::vector<Type>>& a,
     const std::vector<std::vector<Type>>& b) {
     std::vector<std::vector<Type>> M;
-    if (a.empty()) {  // 0+b = b
+    if (a.empty()) {  // 0+b = b.
         M = b;
-    } else if (b.empty()) {  // a+0 = a
+    } else if (b.empty()) {  // a+0 = a.
         M = a;
     } else {
         for (int i = 0; i < a.size(); ++i) {

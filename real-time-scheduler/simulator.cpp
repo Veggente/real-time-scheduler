@@ -22,7 +22,7 @@
 #include "./enum_parser.h"
 
 BooleanVector int_to_bool_vec(int a);
-int int_pow(int base, int exp);  // small integer powers
+int int_pow(int base, int exp);  // Small integer powers.
 
 Simulator::Simulator() {
     network_type_ = COLLOCATED;
@@ -60,7 +60,7 @@ bool Simulator::init(const std::string &config_filename,
     EnumParser<NetworkType> parser_net;
     network_type_ = parser_net.string_to_enum(network_type_string);
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    in >> network_size_;  // will be overwritten for unit-disk networks
+    in >> network_size_;  // Will be overwritten for unit-disk networks.
     switch (network_type_) {
         case COLLOCATED:
             maximal_schedule_matrix_ = gen_max_matrix_collocated(network_size_);
@@ -79,7 +79,7 @@ bool Simulator::init(const std::string &config_filename,
             maximal_schedule_matrix_ = load_network(network_filename);
             network_size_ =
                 static_cast<int>(maximal_schedule_matrix_[0].size());
-                // previous assigned network size ignored
+                // Previous assigned network size ignored.
             break;
         default:
             std::cerr << "Error: network type not recognized!" << std::endl;

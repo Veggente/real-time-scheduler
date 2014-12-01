@@ -14,15 +14,15 @@
 #include "./policy.h"
 #include "./common.h"
 
-class Packet {  // packet with birth time and deadline
+class Packet {  // Packet with birth time and deadline.
 public:  // NOLINT
     Packet(int i = -1, int j = -1) {birth_time_ = i; deadline_ = j;}
     int birth_time() const {return birth_time_;}
     int deadline() const {return deadline_;}
     int delay_bound() const {return deadline_-birth_time_+1;}
 private:  // NOLINT
-    int birth_time_;  // birth time
-    int deadline_;  // deadline
+    int birth_time_;  // Birth time.
+    int deadline_;    // Deadline.
 };
 
 class QueueingSystem {
@@ -47,8 +47,8 @@ public:  // NOLINT
     Counters queue_lengths();
     void depart(std::mt19937 &rng);  // NOLINT
     void output_deficits(const std::string &filename);
-    int quarter_point();  // quarter point integer among num_iterations
-    int half_point();  // half point integer among num_iterations
+    int quarter_point();  // Quarter point integer among num_iterations.
+    int half_point();     // Half point integer among num_iterations.
     void update_stability_counter();
     int64_t lower_deficit_sum() const {return lower_deficit_sum_;}
     int64_t upper_deficit_sum() const {return upper_deficit_sum_;}
@@ -67,12 +67,12 @@ private:  // NOLINT
     int system_clock_;
     int max_delay_bound_;
     std::string output_filename_;
-    int64_t lower_deficit_sum_;  // quarter-to-half deficit sum
-    int64_t upper_deficit_sum_;  // half-to-whole deficit sum
+    int64_t lower_deficit_sum_;  // Quarter-to-half deficit sum.
+    int64_t upper_deficit_sum_;  // Half-to-whole deficit sum.
     int num_iterations_;
     Counters per_link_cumulative_throughput_;
     Counters per_link_cumulative_arrival_;
-    double threshold_ratio_;  // for ldf-threshold policy
+    double threshold_ratio_;  // For ldf-threshold policy.
 };
 
 #endif  // REAL_TIME_SCHEDULER_REAL_TIME_QUEUEING_H_

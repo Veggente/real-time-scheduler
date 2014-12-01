@@ -25,11 +25,11 @@ BooleanMatrix gen_max_matrix_collocated(int network_size) {
 BooleanMatrix gen_max_matrix_cycle(int network_size, int interference_radius) {
     if (network_size <= 2*interference_radius+1) {
         return gen_max_matrix_collocated(network_size);
-    }  // else, proceed
+    }  // Else, proceed.
     BooleanMatrix maximal_schedule_matrix;
-    BooleanMatrixMap maximal_schedule_matrix_map;  // for duplication check
+    BooleanMatrixMap maximal_schedule_matrix_map;  // For duplication check.
     for (int i = 0; i <= interference_radius; ++i) {
-            // false*i+true*1+false*interference_radius at the head
+            // false*i+true*1+false*interference_radius at the head.
         BooleanVector maximal_head(i, false);
         maximal_head.push_back(true);
         maximal_head.insert(maximal_head.end(), interference_radius, false);
@@ -45,7 +45,7 @@ BooleanMatrix gen_max_matrix_cycle(int network_size, int interference_radius) {
             matrix_append.begin(), matrix_append.end());
     }
     for (int i = 0; i < interference_radius; ++i) {
-            // false*interference_radius+true*1+false*i at the tail
+            // false*interference_radius+true*1+false*i at the tail.
         BooleanVector maximal_head(interference_radius-i, false);
         BooleanVector maximal_tail(interference_radius, false);
         maximal_tail.push_back(true);
@@ -61,7 +61,7 @@ BooleanMatrix gen_max_matrix_cycle(int network_size, int interference_radius) {
             matrix_append.begin(), matrix_append.end());
     }
     maximal_schedule_matrix = eliminate_duplicates(maximal_schedule_matrix);
-        // eliminate the duplicates
+        // Eliminate the duplicates.
     return maximal_schedule_matrix;
 }
 
@@ -77,16 +77,16 @@ BooleanMatrix gen_max_matrix_line(int network_size,
 BooleanMatrix
     gen_max_matrix_line_recursive_with_duplicate_check(int network_size,
     int interference_radius, BooleanMatrixMap &matrix_known) {
-        // matrix_known has keys of known lengths
-    if (network_size <= interference_radius+1) {  // collocated
+        // matrix_known has keys of known lengths.
+    if (network_size <= interference_radius+1) {  // Collocated.
         BooleanMatrix maximal_matrix =
             gen_max_matrix_collocated(network_size);
         matrix_known[network_size] = maximal_matrix;
         return maximal_matrix;
     } else if (matrix_known.count(network_size) > 0) {
-            // network_size-line network is already known
+            // network_size-line network is already known.
         return matrix_known.find(network_size)->second;
-    } else {  // network_size-line has not been calculated
+    } else {  // network_size-line has not been calculated.
         BooleanMatrix maximal_matrix;
         for (int i = 0; i <= interference_radius ; ++i) {
             BooleanVector maximal(i, false);
@@ -99,10 +99,10 @@ BooleanMatrix
                     gen_max_matrix_line_recursive_with_duplicate_check(
                     network_size-i-1-interference_radius,
                     interference_radius, matrix_known));
-                        // recursive step
+                        // Recursive step.
                 maximal_matrix.insert(maximal_matrix.end(),
                                       maximal_temp.begin(), maximal_temp.end());
-            } else {  // no recursion needed
+            } else {  // No recursion needed.
                 maximal.insert(maximal.end(), network_size-i-1, false);
                 maximal_matrix.push_back(maximal);
             }
@@ -128,7 +128,7 @@ BooleanMatrix load_network(const std::string network_filename) {
                                             BooleanVector(network_size, false));
     in.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     std::string max_schedule_str;
-    std::getline(in, max_schedule_str);  // to omit the first empty line
+    std::getline(in, max_schedule_str);  // To omit the first empty line.
     for (int i = 0; i < num_maximal_schedules; ++i) {
         std::getline(in, max_schedule_str);
         std::istringstream max_schedule_stream(max_schedule_str);

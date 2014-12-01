@@ -14,21 +14,21 @@
 BooleanVector greedy(const BooleanVector &availability,
                      const Counters &priority,
                      const BooleanMatrix &maximal_schedule_matrix,
-                         // must be maximal
+                         // Must be maximal.
                      std::mt19937 &rng);
 
-BooleanVector ldf(const Queues &queues_deadline_heap,  // min deadline heap
+BooleanVector ldf(const Queues &queues_deadline_heap,  // Min deadline heap.
                   const Counters &deficits,
                   const BooleanMatrix &maximal_schedule_matrix,
                   std::mt19937 &rng);
 
-BooleanVector edf(const Queues &queues_deadline_heap,  // min deadline heap
+BooleanVector edf(const Queues &queues_deadline_heap,  // Min deadline heap.
                   const Counters &deficits,
                   const BooleanMatrix &maximal_schedule_matrix,
                   int current_time, int max_delay_bound, std::mt19937 &rng);
 
-BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // min delay bound
-                                                           // heap
+BooleanVector sdbf(const Queues &queues_delay_bound_heap,  // Min delay bound
+                                                           // heap.
                    const Counters &deficits,
                    const BooleanMatrix &maximal_schedule_matrix,
                    int max_delay_bound, std::mt19937 &rng);

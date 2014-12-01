@@ -30,9 +30,9 @@ enum Policy {
 };
 
 enum TieBreaker {
-    RANDOM,  // uniformly random tie-breaker
-    DEADLINE,  // earliest-deadline-first tie-breaker
-    DELAY_BOUND,  // shortest-delay-bound-first tie-breaker
+    RANDOM,       // Uniformly random tie-breaker.
+    DEADLINE,     // Earliest-deadline-first tie-breaker.
+    DELAY_BOUND,  // Shortest-delay-bound-first tie-breaker.
     TIE_BREAKER_COUNT
 };
 
@@ -63,9 +63,9 @@ typedef std::vector<PacketSet> Queues;
 typedef std::vector<bool> BooleanVector;
 typedef std::vector<std::vector<bool>> BooleanMatrix;
 typedef std::map<int, BooleanMatrix> BooleanMatrixMap;
-typedef std::pair<int, int> IndexPair;  // (priority, index) pair
+typedef std::pair<int, int> IndexPair;  // (priority, index) pair.
+// (priority, index) mapping.
 typedef std::vector<IndexPair> IndexMapping;
-    // (priority, index) mapping
 typedef std::vector<std::vector<std::vector<QueueingSystem>>> QueueingSystem3D;
 typedef std::vector<IntegerVector> IntegerMatrix;
 

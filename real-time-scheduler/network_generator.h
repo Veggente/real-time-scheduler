@@ -13,27 +13,27 @@
 #include "./common.h"
 
 BooleanMatrix gen_max_matrix_collocated(int network_size);
-    // generate maximal schedule matrix for collocated networks
+    // Generate maximal schedule matrix for collocated networks.
 
 BooleanMatrix gen_max_matrix_cycle(int network_size, int interference_radius);
-    // generate maximal schedule matrix for cycle networks
+    // Generate maximal schedule matrix for cycle networks.
 
 BooleanMatrix gen_max_matrix_line(int network_size, int interference_radius);
-    // generate maximal schedule matrix for line networks
+    // Generate maximal schedule matrix for line networks.
 
 BooleanMatrix
 gen_max_matrix_line_recursive_with_duplicate_check(int network_size,
     int interference_radius, BooleanMatrixMap& matrix_known);
-    // for recursively generating line networks
+    // For recursively generating line networks.
 
 BooleanMatrix load_network(const std::string network_filename);
-    // load network from file
+    // Load network from file.
 
 template <typename Type>
 std::vector<std::vector<Type>> append_vector(
     const std::vector<std::vector<Type>>&,
     const std::vector<std::vector<Type>>&);
-    // append several vectors to several other vectors
+    // Append several vectors to several other vectors.
 
 #include "network_generator.hpp"
 

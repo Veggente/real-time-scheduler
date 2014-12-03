@@ -64,7 +64,7 @@ Counters QueueingSystem::queue_lengths() {
     return queues;
 }
 
-void QueueingSystem::depart(std::mt19937 &rng, LinkScheduleMap &schedule_map) {
+void QueueingSystem::depart(std::mt19937 &rng, LinkScheduleMap &schedule_map) {  // NOLINT
     for (int i = 0; i < network_size(); ++i) {  // Make heaps.
         if (intra_link_tie_breaker() == DELAY_BOUND) {
             make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),

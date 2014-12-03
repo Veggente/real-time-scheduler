@@ -251,42 +251,25 @@ BooleanVector ldf_vision(const Queues &queues_deadline_heap,
         IntegerVector best_trial;
         IntegerVector winner;
         // Traverse trial in unconsidered_links.
-//        IntegerMatrix all_trials = traverse(unconsidered_links);
-//        std::shuffle(all_trials.begin(), all_trials.end(), rng);
-//        for (int i = 0; i < all_trials.size(); ++i) {
-//            IntegerVector trial = all_trials[i];
-//            // Find the trial with largest deficit in some candidate[survivor],
-//            // and denote it by best_trial.
-//            int64_t total_deficit = weighted_sum(deficits, trial);
-//            if (total_deficit > best_deficit) {
-//                IntegerVector leader = match(trial, candidate, survivor);
-//                if (!leader.empty()) {
-//                    best_trial = trial;
-//                    winner = leader;
-//                    best_deficit = total_deficit;
-//                }
-//            }
-//        }
-
         // TODO(Veggente): Optimize for pair-visioning. Several functions should
         // go obsolete.
-        int available_link_len = static_cast<int>(available_links.size());
+        int unconsidered_link_len = static_cast<int>(unconsidered_links.size());
         int num_leaders = 0;
-        for (int it1 = 0; it1 < available_link_len; ++it1) {
-            for (int it2 = it1; it2 < available_link_len; ++it2) {
+        for (int it1 = 0; it1 < unconsidered_link_len; ++it1) {
+            for (int it2 = it1; it2 < unconsidered_link_len; ++it2) {
                 IntegerVector trial;
                 int64_t total_deficit;
                 if (it1 == it2) {
-                    trial.push_back(available_links[it1]);
-                    total_deficit = deficits[available_links[it1]];
+                    trial.push_back(unconsidered_links[it1]);
+                    total_deficit = deficits[unconsidered_links[it1]];
                 } else {
-                    trial.push_back(available_links[it1]);
-                    trial.push_back(available_links[it2]);
-                    total_deficit = deficits[available_links[it1]]
-                        +deficits[available_links[it2]];
+                    trial.push_back(unconsidered_links[it1]);
+                    trial.push_back(unconsidered_links[it2]);
+                    total_deficit = deficits[unconsidered_links[it1]]
+                        +deficits[unconsidered_links[it2]];
                 }
                 if (total_deficit > best_deficit) {
-                    // TODO(Veggente): Optimize this function?
+                    // TODO(Veggente): Optimize this function as well?
                     IntegerVector leader = match(trial, candidate, survivor);
                     if (!leader.empty()) {
                         best_trial = trial;
@@ -295,12 +278,15 @@ BooleanVector ldf_vision(const Queues &queues_deadline_heap,
                         num_leaders = 1;
                     }
                 } else if (total_deficit == best_deficit) {
-                    ++num_leaders;
-                    std::uniform_int_distribution<> dis(1, num_leaders);
-                    if (dis(rng) == 1) {  // This happens w.p. 1/num_leaders.
-                        best_trial = trial;
-                        IntegerVector leader = match(trial, candidate, survivor);
-                        winner = leader;
+                    IntegerVector leader = match(trial, candidate, survivor);
+                    if (!leader.empty()) {
+                        ++num_leaders;
+                        std::uniform_int_distribution<> dis(1, num_leaders);
+                        // This happens w.p. 1/num_leaders.
+                        if (dis(rng) == 1) {
+                            best_trial = trial;
+                            winner = leader;
+                        }
                     }
                 }
             }

@@ -10,6 +10,7 @@
 
 #include <random>
 #include <string>
+#include <map>
 #include "./common.h"
 #include "./real_time_queueing.h"
 
@@ -36,7 +37,7 @@ private:  // NOLINT
     IntegerVector min_packet_;  // Only for uniform and Bernoulli arrival.
     IntegerVector max_packet_;
     Ratios binom_param_;  // Only for binomial arrival.
-    Ratios bern_param_;  // Only for Bernoulli arrival.
+    Ratios bern_param_;   // Only for Bernoulli arrival.
     IntegerVector min_delay_bound_;
     IntegerVector max_delay_bound_;
     Ratios base_qos_;
@@ -50,6 +51,8 @@ private:  // NOLINT
     int rng_seed_;
     bool output_throughput_;
     double threshold_ratio_;
+    // A map from set of links to set of feasible schedules for efficiency.
+    LinkScheduleMap restricted_feasible_schedule_matrix_;
 };
 
 #endif  // REAL_TIME_SCHEDULER_SIMULATOR_H_

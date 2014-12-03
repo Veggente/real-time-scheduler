@@ -64,7 +64,7 @@ Counters QueueingSystem::queue_lengths() {
     return queues;
 }
 
-void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
+void QueueingSystem::depart(std::mt19937 &rng, LinkScheduleMap &schedule_map) {
     for (int i = 0; i < network_size(); ++i) {  // Make heaps.
         if (intra_link_tie_breaker() == DELAY_BOUND) {
             make_heap(per_link_queue_[i].begin(), per_link_queue_[i].end(),
@@ -104,7 +104,8 @@ void QueueingSystem::depart(std::mt19937 &rng) {  // NOLINT
                 max_delay_bound(), threshold_ratio_, rng);
         } else if (scheduler() == LDF_VISION) {
             scheduled_links = ldf_vision(per_link_queue_, per_link_deficit_,
-                                         maximal_schedule_matrix_, rng);
+                                         maximal_schedule_matrix_, rng,
+                                         schedule_map);
         } else {
             std::cerr << "Error: scheduler type not recognized!" << std::endl;
             exit(1);

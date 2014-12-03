@@ -378,7 +378,7 @@ void Simulator::depart(std::mt19937 &rng) {  // NOLINT
             for (int ratio_it = 0; ratio_it < qos_ratio_.size(); ++ratio_it) {
                 auto &this_system =
                     queueing_system_[policy_it][bandwidth_it][ratio_it];
-                this_system.depart(rng);
+                this_system.depart(rng, restricted_feasible_schedule_matrix_);
             }
         }
     }

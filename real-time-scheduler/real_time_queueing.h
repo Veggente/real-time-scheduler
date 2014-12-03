@@ -45,7 +45,7 @@ public:  // NOLINT
     std::string output_filename() const {return output_filename_;}
     void arrive(const Traffic &traffic, std::mt19937 &rng);
     Counters queue_lengths();
-    void depart(std::mt19937 &rng);  // NOLINT
+    void depart(std::mt19937 &rng, LinkScheduleMap &schedule_map);  // NOLINT
     void output_deficits(const std::string &filename);
     int quarter_point();  // Quarter point integer among num_iterations.
     int half_point();     // Half point integer among num_iterations.

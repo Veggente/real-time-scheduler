@@ -68,6 +68,7 @@ typedef std::pair<int, int> IndexPair;  // (priority, index) pair.
 typedef std::vector<IndexPair> IndexMapping;
 typedef std::vector<std::vector<std::vector<QueueingSystem>>> QueueingSystem3D;
 typedef std::vector<IntegerVector> IntegerMatrix;
+typedef std::map<IntegerVector, BooleanMatrix> LinkScheduleMap;
 
 const int HUNDRED = 100;
 const int NETWORK_TYPE_ID_LEN = 2;

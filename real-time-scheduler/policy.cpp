@@ -15,7 +15,8 @@ bool comp_pairs(const IndexPair &p1, const IndexPair &p2);
 BooleanVector available_queues(const Queues &q);
 IntegerVector available_queue_set(const Queues &q);
 BooleanMatrix restrict_schedule(const BooleanMatrix &maximal_schedule_matrix,
-                                const IntegerVector &available_links);
+                                const IntegerVector &available_links,
+                                LinkScheduleMap &schedule_map);
 IntegerVector get_indices(const BooleanMatrix &candidate);
 IntegerMatrix traverse(const IntegerVector &available_links);
 int64_t weighted_sum(const Counters &weight, const IntegerVector &link_set);
@@ -234,13 +235,13 @@ BooleanVector available_queues(const Queues &q) {
 BooleanVector ldf_vision(const Queues &queues_deadline_heap,
                          const Counters &deficits,
                          const BooleanMatrix &maximal_schedule_matrix,
-                         std::mt19937 &rng) {
+                         std::mt19937 &rng, LinkScheduleMap &schedule_map) {
     // Initialize available_links to be the set of links with available packets.
     IntegerVector available_links = available_queue_set(queues_deadline_heap);
     // Make a map from available_links to the restricted feasible schedules. The
     // schedules need not be maximal, but must be unique.
     BooleanMatrix candidate = restrict_schedule(maximal_schedule_matrix,
-                                                available_links);
+                                                available_links, schedule_map);
     // Test all pairs and singletons in available_links and choose best pair or
     // singleton winner.
     IntegerVector survivor = get_indices(candidate);
@@ -250,19 +251,57 @@ BooleanVector ldf_vision(const Queues &queues_deadline_heap,
         IntegerVector best_trial;
         IntegerVector winner;
         // Traverse trial in unconsidered_links.
-        IntegerMatrix all_trials = traverse(unconsidered_links);
-        std::shuffle(all_trials.begin(), all_trials.end(), rng);
-        for (int i = 0; i < all_trials.size(); ++i) {
-            IntegerVector trial = all_trials[i];
-            // Find the trial with largest deficit in some candidate[survivor],
-            // and denote it by best_trial.
-            int64_t total_deficit = weighted_sum(deficits, trial);
-            if (total_deficit > best_deficit) {
-                IntegerVector leader = match(trial, candidate, survivor);
-                if (!leader.empty()) {
-                    best_trial = trial;
-                    winner = leader;
-                    best_deficit = total_deficit;
+//        IntegerMatrix all_trials = traverse(unconsidered_links);
+//        std::shuffle(all_trials.begin(), all_trials.end(), rng);
+//        for (int i = 0; i < all_trials.size(); ++i) {
+//            IntegerVector trial = all_trials[i];
+//            // Find the trial with largest deficit in some candidate[survivor],
+//            // and denote it by best_trial.
+//            int64_t total_deficit = weighted_sum(deficits, trial);
+//            if (total_deficit > best_deficit) {
+//                IntegerVector leader = match(trial, candidate, survivor);
+//                if (!leader.empty()) {
+//                    best_trial = trial;
+//                    winner = leader;
+//                    best_deficit = total_deficit;
+//                }
+//            }
+//        }
+
+        // TODO(Veggente): Optimize for pair-visioning. Several functions should
+        // go obsolete.
+        int available_link_len = static_cast<int>(available_links.size());
+        int num_leaders = 0;
+        for (int it1 = 0; it1 < available_link_len; ++it1) {
+            for (int it2 = it1; it2 < available_link_len; ++it2) {
+                IntegerVector trial;
+                int64_t total_deficit;
+                if (it1 == it2) {
+                    trial.push_back(available_links[it1]);
+                    total_deficit = deficits[available_links[it1]];
+                } else {
+                    trial.push_back(available_links[it1]);
+                    trial.push_back(available_links[it2]);
+                    total_deficit = deficits[available_links[it1]]
+                        +deficits[available_links[it2]];
+                }
+                if (total_deficit > best_deficit) {
+                    // TODO(Veggente): Optimize this function?
+                    IntegerVector leader = match(trial, candidate, survivor);
+                    if (!leader.empty()) {
+                        best_trial = trial;
+                        winner = leader;
+                        best_deficit = total_deficit;
+                        num_leaders = 1;
+                    }
+                } else if (total_deficit == best_deficit) {
+                    ++num_leaders;
+                    std::uniform_int_distribution<> dis(1, num_leaders);
+                    if (dis(rng) == 1) {  // This happens w.p. 1/num_leaders.
+                        best_trial = trial;
+                        IntegerVector leader = match(trial, candidate, survivor);
+                        winner = leader;
+                    }
                 }
             }
         }
@@ -289,10 +328,13 @@ IntegerVector available_queue_set(const Queues &q) {
     return avail;
 }
 
-// TODO(Veggente): make it persistent so that the function is only run for each
-// available_links once.
 BooleanMatrix restrict_schedule(const BooleanMatrix &maximal_schedule_matrix,
-                                const IntegerVector &available_links) {
+                                const IntegerVector &available_links,
+                                LinkScheduleMap &schedule_map) {
+    auto it = schedule_map.find(available_links);
+    if (it != schedule_map.end()) {
+        return it->second;
+    }
     std::set<BooleanVector> schedule_set;
     int network_size = static_cast<int>(maximal_schedule_matrix[0].size());
     for (int i = 0; i < maximal_schedule_matrix.size(); ++i) {
@@ -304,6 +346,7 @@ BooleanMatrix restrict_schedule(const BooleanMatrix &maximal_schedule_matrix,
         schedule_set.insert(temp_schedule);
     }
     BooleanMatrix schedule(schedule_set.begin(), schedule_set.end());
+    schedule_map[available_links] = schedule;
     return schedule;
 }
 

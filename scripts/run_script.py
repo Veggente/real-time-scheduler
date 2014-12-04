@@ -5,13 +5,13 @@ import sys
 def main():
 #    qos_x = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
 #    qos_y = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
-    qos_x = [1]
-    qos_y = [1]
+    qos_x = [0.32, 1, 1]
+    qos_y = [1, 1, 0.32]
     qos_len = len(qos_x)
     delays = [1, 2]
     policy = sys.argv[1]
-    bw_begin = 32
-    bw_end = 80
+    bw_begin = 24
+    bw_end = 24
     bw_step = 8
     for delay in delays:
         for qos_it in range(qos_len):

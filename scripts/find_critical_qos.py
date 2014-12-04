@@ -15,8 +15,8 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "x:y:d:b:e:s:p:i:t")
     except getopt.GetoptError as err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
+        # Print help information and exit:
+        print str(err)  # Will print something like "option -a not recognized".
         sys.exit(2)
     qos_x = "1"
     qos_y = "1"
@@ -25,7 +25,7 @@ def main():
     bw_end = 1
     bw_step = 1
     policy = "ldf"
-    input_file = "input.txt"
+    input_file = "input_file.txt"
     save_config_and_deficit = 1
     for o, a in opts:
         if o == "-x":
@@ -49,26 +49,26 @@ def main():
         else:
             assert False, "unhandled option"
 
-    # other parameters
-    qos_ratio_initial = 0.5 # initial ratio
-    max_trial = 20 # maximum number of trials before terminating
-    qos_step = 0.0001 # step size
-    num_iterations = 20000 # number of iterations
+    # Other parameters.
+    qos_ratio_initial = 0.5  # Initial ratio.
+    max_trial = 10           # Maximum number of trials before terminating.
+    qos_step = 0.0001        # Step size.
+    num_iterations = 1000   # Number of iterations.
     min_ratio = 0.0
     max_ratio = 1.0
-    network_file = "network-5.txt"
+    network_file = "network_file.txt"
     stability_file_prefix = "stability"
     time_seed = 1
 
-    # initialization
+    # Initialization.
     bandwidth.word_writer(input_file, 8, 3, qos_x) 
-    bandwidth.word_writer(input_file, 8, 4, qos_y) # set base qos
-    bandwidth.word_writer(input_file, 5, 5, delay_bound) # set delay bound
+    bandwidth.word_writer(input_file, 8, 4, qos_y)        # Set base QoS.
+    bandwidth.word_writer(input_file, 5, 5, delay_bound)  # Set delay bound.
     bandwidth.word_writer(input_file, 6, 5, delay_bound)
     directory = "qos-x"+qos_x+"-y"+qos_y+"/delay_bound_"+delay_bound+"/"
     policy_indicator = 1
     if not os.path.exists(directory):
-        os.makedirs(directory) # mkdir
+        os.makedirs(directory)  # Make directory.
     if policy == "ldf":
         policy_indicator = 1
     elif policy == "edf":
@@ -79,39 +79,57 @@ def main():
         policy_indicator = 8
     elif policy == "sdbf-naive":
         policy_indicator = 16
+    elif policy == "maximal":
+        policy_indicator = 32
+    elif policy == "ldf-threshold":
+        policy_indicator = 64
+    elif policy == "ldf-vision":
+        policy_indicator = 128
     else:
-        print "Please use a valid policy"
+        print "Please use a valid policy."
         exit(2)
-    bandwidth.word_writer(input_file, 11, 3, policy_indicator) # set policy indicator
-    bandwidth.word_writer(input_file, 12, 3, 1) # set time seed
+    # Set policy indicator.
+    bandwidth.word_writer(input_file, 11, 3, policy_indicator)
+    # Set time seed.
+    bandwidth.word_writer(input_file, 12, 3, 1)
     bandwidth.word_writer(input_file, 13, 5, save_config_and_deficit)
-    bandwidth.word_writer(input_file, 10, 4, num_iterations) # set number of iterations
-    for bw in bandwidth.my_range(bw_begin, bw_end, bw_step): # for bandwidth loop
+    # Set number of iterations.
+    bandwidth.word_writer(input_file, 10, 4, num_iterations)
+    # For bandwidth loop.
+    for bw in bandwidth.my_range(bw_begin, bw_end, bw_step):
         qos_ratio = qos_ratio_initial
-        bandwidth.word_writer(input_file, 7, 2, bw) # set bandwidth
+        bandwidth.word_writer(input_file, 7, 2, bw)  # Set bandwidth.
         stability_file = stability_file_prefix+"-"+policy+"-b"+str(bw)+".txt"
         last_small = min_ratio
         last_large = max_ratio
         for trial in range(0, max_trial):
-            bandwidth.word_writer(input_file, 9, 4, qos_ratio) # set qos ratio
+            bandwidth.word_writer(input_file, 9, 4, qos_ratio)  # Set QoS ratio.
             cdin = Chdir(directory)
-            os.system("nice time ../../real-time-scheduler ../../"+input_file+" ../../"+network_file+" "+stability_file_prefix)
-            stability_ratio = bandwidth.read_stability_ratio(stability_file) # read new ratio
+            os.system("nice time ../../real-time-scheduler ../../"+input_file
+                      +" ../../"+network_file+" "+stability_file_prefix)
+            # Read new ratio.
+            stability_ratio = bandwidth.read_stability_ratio(stability_file)
             cdin = Chdir("../../")
             if stability_ratio < 1.5:
                 last_small = qos_ratio
-                qos_ratio = bandwidth.bisection_adjust(last_large, qos_ratio, qos_step, min_ratio, max_ratio)
+                qos_ratio = bandwidth.bisection_adjust(
+                    last_large, qos_ratio, qos_step, min_ratio, max_ratio)
             else:
                 last_large = qos_ratio
-                qos_ratio = bandwidth.bisection_adjust(last_small, qos_ratio, qos_step, min_ratio, max_ratio)
-            print "Iteration "+str(trial+1)+"/"+str(max_trial)+" completed! (Total: "+to_percentage(calculate_progress(bw, bw_begin, bw_end, bw_step, trial, max_trial))+")"
+                qos_ratio = bandwidth.bisection_adjust(
+                    last_small, qos_ratio, qos_step, min_ratio, max_ratio)
+            print ("Iteration "+str(trial+1)+"/"+str(max_trial)+
+                   " completed! (Total: "+to_percentage(calculate_progress(
+                       bw, bw_begin, bw_end, bw_step, trial, max_trial))+")")
 
 def to_percentage(a):
     return str(float(int(round(1000*a)))/10)+"%"
 
 def calculate_progress(bw, bw_begin, bw_end, bw_step, trial, max_trial):
-    major_progress = ((float(bw)-float(bw_begin))/float(bw_step))/((float(bw_end)-float(bw_begin))/float(bw_step)+1)
-    minor_progress = float(trial)/float(max_trial)/((float(bw_end)-float(bw_begin))/float(bw_step)+1)
+    major_progress = ( ( (float(bw)-float(bw_begin)) / float(bw_step) ) /
+                       ( (float(bw_end)-float(bw_begin)) / float(bw_step)+1 ) )
+    minor_progress = ( float(trial) / float(max_trial) /
+                       ( (float(bw_end)-float(bw_begin)) / float(bw_step)+1 ) )
     return major_progress+minor_progress
 
 if __name__ == "__main__":

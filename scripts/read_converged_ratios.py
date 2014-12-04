@@ -37,7 +37,7 @@ def main(argv):
     x_list = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
     y_list = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
     bw_start = 24
-    bw_end = 72
+    bw_end = 24
     bw_step = 24
     if mode == 3: # throughput
         bandwidths = bandwidth.my_range(30, 80, 5)

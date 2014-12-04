@@ -34,8 +34,10 @@ def main(argv):
                           # 3: throughput
         else:
             assert False, "unhandled option"
-    x_list = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
-    y_list = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
+#    x_list = [0, 0.16, 0.32, 0.51, 0.73, 1, 1, 1, 1, 1, 1]
+#    y_list = [1, 1, 1, 1, 1, 1, 0.73, 0.51, 0.32, 0.16, 0]
+    x_list = [0.32, 1, 1]
+    y_list = [1, 1, 0.32]
     bw_start = 24
     bw_end = 24
     bw_step = 24

@@ -51,9 +51,9 @@ def main():
 
     # Other parameters.
     qos_ratio_initial = 0.5  # Initial ratio.
-    max_trial = 10           # Maximum number of trials before terminating.
+    max_trial = 20           # Maximum number of trials before terminating.
     qos_step = 0.0001        # Step size.
-    num_iterations = 1000   # Number of iterations.
+    num_iterations = 20000   # Number of iterations.
     min_ratio = 0.0
     max_ratio = 1.0
     network_file = "network_file.txt"

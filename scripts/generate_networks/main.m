@@ -1,4 +1,17 @@
-% Generate unit-disk random graphs for C++ program real-time-scheduler
+% Generate unit-disk random graphs for C++ program
+% real-time-scheduler
+%
+% The file network-1.txt is generated with the following parameters
+%     num_nodes = 32;
+%     comm_range = 0.25;
+%     interf_range = 0.01;
+%     max_num_links = 20;
+% The file network-5.txt is generated with the following parameters
+%     num_nodes = 32;
+%     comm_range = 0.25;
+%     interf_range = 0.21;
+%     max_num_links = 20;
+
 clear all; clc
 
 rng(3)

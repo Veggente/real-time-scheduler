@@ -83,9 +83,11 @@ EnumParser<ArrivalDistribution>::EnumParser() {
     enum_to_string_[UNIFORM_PACKET] = "uniform";
     enum_to_string_[BINOMIAL_PACKET] = "binomial";
     enum_to_string_[BERNOULLI_PACKET] = "bernoulli";
+    enum_to_string_[BERNOULLI_FINE_PACKET] = "bernoulli-fine";
     string_to_enum_["uniform"] = UNIFORM_PACKET;
     string_to_enum_["binomial"] = BINOMIAL_PACKET;
     string_to_enum_["bernoulli"] = BERNOULLI_PACKET;
+    string_to_enum_["bernoulli-fine"] = BERNOULLI_FINE_PACKET;
 }
 
 #endif  // REAL_TIME_SCHEDULER_ENUM_PARSER_H_

@@ -47,7 +47,9 @@ enum NetworkType {
 enum ArrivalDistribution {
     UNIFORM_PACKET,
     BINOMIAL_PACKET,
-    BERNOULLI_PACKET,
+    BERNOULLI_PACKET,       // Bernoulli with two types of probabilities.
+    BERNOULLI_FINE_PACKET,  // Bernoulli with specific probability for each
+                            // link.
     ARRIVAL_DIST_COUNT
 };
 

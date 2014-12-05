@@ -149,6 +149,19 @@ bool Simulator::init(const std::string &config_filename,
             }
             break;
         }
+        case BERNOULLI_FINE_PACKET:
+        {
+            int min_packet_uniform, max_packet_uniform;
+            in >> min_packet_uniform >> max_packet_uniform;
+            for (int i = 0; i < network_size_; ++i) {
+                min_packet_.push_back(min_packet_uniform);
+                max_packet_.push_back(max_packet_uniform);
+                double current_bern_param;
+                in >> current_bern_param;
+                bern_param_.push_back(current_bern_param);
+            }
+            break;
+        }
         default:
             std::cerr << "Error: arrival distribution not recognized!"
                       << std::endl;
@@ -344,7 +357,8 @@ void Simulator::arrive(std::mt19937 &rng) {  // NOLINT
                                            min_packet_, max_packet_,
                                            min_delay_bound_, max_delay_bound_,
                                            rng);
-    } else if (arrival_dist_ == BERNOULLI_PACKET) {
+    } else if (arrival_dist_ == BERNOULLI_PACKET or
+               arrival_dist_ == BERNOULLI_FINE_PACKET) {
         traffic = generate_bernoulli_traffic(network_size_, system_clock_,
                                              min_packet_, max_packet_,
                                              bern_param_, min_delay_bound_,

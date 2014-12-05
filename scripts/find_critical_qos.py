@@ -51,7 +51,7 @@ def main():
 
     # Other parameters.
     qos_ratio_initial = 0.5  # Initial ratio.
-    max_trial = 20           # Maximum number of trials before terminating.
+    max_trial = 15           # Maximum number of trials before terminating.
     qos_step = 0.001         # Step size.
     num_iterations = 20000   # Number of iterations.
     min_ratio = 0.0

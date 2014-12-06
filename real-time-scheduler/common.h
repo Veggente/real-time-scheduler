@@ -26,6 +26,7 @@ enum Policy {
     MAXIMAL,        // Random maximal.
     LDF_THRESHOLD,  // LDF with threshold.
     LDF_VISION,     // LDF with vision (greedily selects pairs).
+    MAX_DEFICIT,    // MaxDeficit.
     POLICY_COUNT
 };
 

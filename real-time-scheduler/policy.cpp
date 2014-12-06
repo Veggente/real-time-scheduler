@@ -391,3 +391,39 @@ void remove_elements(IntegerVector &original_set,  // NOLINT
     }
 }
 
+BooleanVector max_deficit(const Queues &queues_deadline_heap,
+                          const Counters &deficits,
+                          const BooleanMatrix &maximal_schedule_matrix,
+                          std::mt19937 &rng) {
+    int network_size = static_cast<int>(queues_deadline_heap.size());
+    int64_t best_deficit = -1;  // Assuming all deficits are nonnegative.
+    int winner = -1;
+    BooleanVector winning_schedule;
+    int num_leaders = 0;
+    for (int i = 0; i < maximal_schedule_matrix.size(); ++i) {
+        int64_t deficit_sum = 0;
+        BooleanVector feasible_schedule(network_size, false);
+        for (int j = 0; j < network_size; ++j) {
+            if (!queues_deadline_heap[j].empty() &&
+                maximal_schedule_matrix[i][j]) {
+                deficit_sum += deficits[j];
+                feasible_schedule[j] = true;
+            }
+        }
+        if (deficit_sum > best_deficit) {
+            winner = i;
+            winning_schedule = feasible_schedule;
+            best_deficit = deficit_sum;
+            num_leaders = 1;
+        } else if (deficit_sum == best_deficit) {
+            ++num_leaders;
+            // With probability 1/num_leaders, swap.
+            std::uniform_int_distribution<> dis(1, num_leaders);
+            if (dis(rng) == 1) {
+                winner = i;
+                winning_schedule = feasible_schedule;
+            }
+        }
+    }
+    return winning_schedule;
+}

@@ -56,6 +56,7 @@ EnumParser<Policy>::EnumParser() {
     enum_to_string_[MAXIMAL] = "maximal";
     enum_to_string_[LDF_THRESHOLD] = "ldf-threshold";
     enum_to_string_[LDF_VISION] = "ldf-vision";
+    enum_to_string_[MAX_DEFICIT] = "max-deficit";
     string_to_enum_["ldf"] = LDF;
     string_to_enum_["edf"] = EDF;
     string_to_enum_["sdbf"] = SDBF;
@@ -64,6 +65,7 @@ EnumParser<Policy>::EnumParser() {
     string_to_enum_["maximal"] = MAXIMAL;
     string_to_enum_["ldf-threshold"] = LDF_THRESHOLD;
     string_to_enum_["ldf-vision"] = LDF_VISION;
+    string_to_enum_["max-deficit"] = MAX_DEFICIT;
 }
 
 template<>

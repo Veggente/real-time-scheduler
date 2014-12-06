@@ -106,6 +106,9 @@ void QueueingSystem::depart(std::mt19937 &rng, LinkScheduleMap &schedule_map) { 
             scheduled_links = ldf_vision(per_link_queue_, per_link_deficit_,
                                          maximal_schedule_matrix_, rng,
                                          schedule_map);
+        } else if (scheduler() == MAX_DEFICIT) {
+            scheduled_links = max_deficit(per_link_queue_, per_link_deficit_,
+                                          maximal_schedule_matrix_, rng);
         } else {
             std::cerr << "Error: scheduler type not recognized!" << std::endl;
             exit(1);

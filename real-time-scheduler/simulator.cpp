@@ -357,7 +357,7 @@ void Simulator::arrive(std::mt19937 &rng) {  // NOLINT
                                            min_packet_, max_packet_,
                                            min_delay_bound_, max_delay_bound_,
                                            rng);
-    } else if (arrival_dist_ == BERNOULLI_PACKET or
+    } else if (arrival_dist_ == BERNOULLI_PACKET ||
                arrival_dist_ == BERNOULLI_FINE_PACKET) {
         traffic = generate_bernoulli_traffic(network_size_, system_clock_,
                                              min_packet_, max_packet_,

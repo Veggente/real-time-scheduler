@@ -85,6 +85,8 @@ def main():
         policy_indicator = 64
     elif policy == "ldf-vision":
         policy_indicator = 128
+    elif policy == "max-deficit":
+        policy_indicator = 256
     else:
         print "Please use a valid policy."
         exit(2)
